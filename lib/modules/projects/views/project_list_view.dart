@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import '../controllers/project_controller.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
-import '../../../app/utils/constants.dart';
+
 import 'widgets/project_card.dart';
 import 'widgets/new_project_card.dart';
 import 'widgets/monthly_goal_card.dart';
+import 'widgets/create_project_dialog.dart';
 
 class ProjectListView extends GetView<ProjectController> {
   const ProjectListView({super.key});
@@ -108,7 +109,8 @@ class ProjectListView extends GetView<ProjectController> {
           ),
           const SizedBox(width: 24),
           ElevatedButton.icon(
-            onPressed: () {}, // Trigger Add Project
+            onPressed: () =>
+                Get.dialog(const CreateProjectDialog()), // Trigger Add Project
             icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('Add Project'),
             style: ElevatedButton.styleFrom(
@@ -162,59 +164,6 @@ class ProjectListView extends GetView<ProjectController> {
   }
 
   void _showAddProjectDialog(BuildContext context) {
-    final nameCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
-    final rateCtrl = TextEditingController();
-    final currencyCtrl = TextEditingController(
-      text: AppConstants.defaultCurrency,
-    );
-
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Add Project'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Project Name'),
-              ),
-              TextField(
-                controller: descCtrl,
-                decoration: const InputDecoration(labelText: 'Description'),
-              ),
-              TextField(
-                controller: rateCtrl,
-                decoration: const InputDecoration(labelText: 'Hourly Rate'),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-              ),
-              TextField(
-                controller: currencyCtrl,
-                decoration: const InputDecoration(labelText: 'Currency'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              if (nameCtrl.text.isNotEmpty) {
-                controller.addProject(
-                  nameCtrl.text.trim(),
-                  descCtrl.text.trim(),
-                  double.tryParse(rateCtrl.text) ?? 0.0,
-                  currency: currencyCtrl.text.trim(),
-                );
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
+    Get.dialog(const CreateProjectDialog());
   }
 }

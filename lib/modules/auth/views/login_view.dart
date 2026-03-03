@@ -26,10 +26,22 @@ class LoginView extends GetView<AuthController> {
   }
 
   Widget _buildMobileLayout(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: _buildLoginForm(context),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: const AssetImage('assets/images/auth_bg.png'),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withOpacity(0.6),
+            BlendMode.darken,
+          ),
+        ),
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: _buildLoginForm(context),
+        ),
       ),
     );
   }
@@ -42,19 +54,27 @@ class LoginView extends GetView<AuthController> {
           flex: 12,
           child: Container(
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.loginGradientStart,
-                  AppColors.loginGradientEnd,
-                ],
+              image: DecorationImage(
+                image: AssetImage('assets/images/auth_bg.png'),
+                fit: BoxFit.cover,
               ),
             ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: _buildHeroCard(),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.loginGradientStart.withOpacity(0.4),
+                    AppColors.loginGradientEnd.withOpacity(0.4),
+                  ],
+                ),
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: _buildHeroCard(),
+                ),
               ),
             ),
           ),

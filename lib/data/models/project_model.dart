@@ -15,7 +15,12 @@ class ProjectModel {
   final int colorValue;
   final int iconCodePoint;
 
-  // New fields for redesign
+  // New fields for redesign and payment types
+  final String paymentType;
+  final double fixedPrice;
+  final double estimatedBudget;
+  final bool isBillable;
+  final bool isBudgetAlertEnabled;
   final double totalHours;
   final double totalRevenue;
   final double weeklyGoalHours;
@@ -36,6 +41,11 @@ class ProjectModel {
     this.monthlyProgress = 0.0,
     this.colorValue = 0xFF6366F1,
     this.iconCodePoint = 0xe232, // folder icon as default
+    this.paymentType = 'Hourly',
+    this.fixedPrice = 0.0,
+    this.estimatedBudget = 0.0,
+    this.isBillable = true,
+    this.isBudgetAlertEnabled = false,
     this.totalHours = 0.0,
     this.totalRevenue = 0.0,
     this.weeklyGoalHours = 0.0,
@@ -58,6 +68,11 @@ class ProjectModel {
       monthlyProgress: (map['monthlyProgress'] ?? 0.0).toDouble(),
       colorValue: map['colorValue'] ?? 0xFF6366F1,
       iconCodePoint: map['iconCodePoint'] ?? 0xe232,
+      paymentType: map['paymentType'] ?? 'Hourly',
+      fixedPrice: (map['fixedPrice'] ?? 0.0).toDouble(),
+      estimatedBudget: (map['estimatedBudget'] ?? 0.0).toDouble(),
+      isBillable: map['isBillable'] ?? true,
+      isBudgetAlertEnabled: map['isBudgetAlertEnabled'] ?? false,
       totalHours: (map['totalHours'] ?? 0.0).toDouble(),
       totalRevenue: (map['totalRevenue'] ?? 0.0).toDouble(),
       weeklyGoalHours: (map['weeklyGoalHours'] ?? 0.0).toDouble(),
@@ -80,6 +95,11 @@ class ProjectModel {
       'monthlyProgress': monthlyProgress,
       'colorValue': colorValue,
       'iconCodePoint': iconCodePoint,
+      'paymentType': paymentType,
+      'fixedPrice': fixedPrice,
+      'estimatedBudget': estimatedBudget,
+      'isBillable': isBillable,
+      'isBudgetAlertEnabled': isBudgetAlertEnabled,
       'totalHours': totalHours,
       'totalRevenue': totalRevenue,
       'weeklyGoalHours': weeklyGoalHours,
