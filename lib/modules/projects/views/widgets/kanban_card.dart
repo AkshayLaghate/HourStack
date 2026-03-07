@@ -19,6 +19,18 @@ class KanbanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Draggable<TaskModel>(
+      data: task,
+      feedback: Material(
+        color: Colors.transparent,
+        child: SizedBox(width: 300, child: _buildCardContent(isDragging: true)),
+      ),
+      childWhenDragging: Opacity(opacity: 0.3, child: _buildCardContent()),
+      child: _buildCardContent(),
+    );
+  }
+
+  Widget _buildCardContent({bool isDragging = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -30,9 +42,9 @@ class KanbanCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(isDragging ? 0.08 : 0.04),
+            blurRadius: isDragging ? 15 : 10,
+            offset: Offset(0, isDragging ? 8 : 4),
           ),
         ],
       ),

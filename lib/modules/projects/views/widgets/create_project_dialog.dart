@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hourstack/app/theme/app_colors.dart';
 import 'package:hourstack/app/theme/app_text_styles.dart';
 import 'package:hourstack/modules/projects/controllers/project_controller.dart';
+import 'package:hourstack/app/utils/constants.dart';
 import 'dart:ui';
 
 class CreateProjectDialog extends StatefulWidget {
@@ -15,18 +16,16 @@ class CreateProjectDialog extends StatefulWidget {
 class _CreateProjectDialogState extends State<CreateProjectDialog> {
   final _nameCtrl = TextEditingController();
   final _rateCtrl = TextEditingController();
-  final _budgetCtrl = TextEditingController();
 
   String? _selectedClient;
   String _paymentType = 'Hourly';
+  String _selectedCurrency = AppConstants.defaultCurrency;
   bool _isBillable = true;
-  bool _isBudgetAlertEnabled = false;
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _rateCtrl.dispose();
-    _budgetCtrl.dispose();
     super.dispose();
   }
 
@@ -43,7 +42,6 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
     }
 
     final rateValue = double.tryParse(_rateCtrl.text) ?? 0.0;
-    final budgetValue = double.tryParse(_budgetCtrl.text) ?? 0.0;
 
     final controller = Get.find<ProjectController>();
     controller.addProject(
@@ -53,9 +51,10 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
       clientName: _selectedClient ?? '',
       paymentType: _paymentType,
       fixedPrice: _paymentType == 'Fixed Price' ? rateValue : 0.0,
-      estimatedBudget: budgetValue,
+      estimatedBudget: 0.0,
       isBillable: _isBillable,
-      isBudgetAlertEnabled: _isBudgetAlertEnabled,
+      isBudgetAlertEnabled: false,
+      currency: _selectedCurrency,
     );
   }
 
@@ -148,11 +147,11 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
                         _buildTextField(
                           controller: _rateCtrl,
                           hintText: '0.00',
-                          prefixIcon: const Padding(
+                          prefixIcon: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              '\$',
-                              style: TextStyle(
+                              _selectedCurrency == 'INR' ? '₹' : '\$',
+                              style: const TextStyle(
                                 color: AppColors.textHint,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -169,41 +168,21 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
                 ],
               ),
               const SizedBox(height: 24),
+
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _paymentType == 'Hourly'
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildLabel('Estimated Budget'),
-                              const SizedBox(height: 8),
-                              _buildTextField(
-                                controller: _budgetCtrl,
-                                hintText: '0.00',
-                                prefixIcon: const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 16),
-                                  child: Text(
-                                    '\$',
-                                    style: TextStyle(
-                                      color: AppColors.textHint,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                    ),
-                              ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildLabel('Currency'),
+                        const SizedBox(height: 8),
+                        _buildCurrencyDropdown(),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 24),
-                  const Expanded(child: SizedBox.shrink()),
+                  const Spacer(),
                 ],
               ),
               const SizedBox(height: 32),
@@ -215,15 +194,6 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
                 value: _isBillable,
                 onChanged: (val) => setState(() => _isBillable = val),
                 iconColor: const Color(0xFF14B8A6), // Teal color
-              ),
-              const SizedBox(height: 16),
-              _buildSettingCard(
-                icon: Icons.notifications_none_rounded,
-                title: 'Budget Alerts',
-                subtitle: 'Notify when 80% of budget is reached',
-                value: _isBudgetAlertEnabled,
-                onChanged: (val) => setState(() => _isBudgetAlertEnabled = val),
-                iconColor: AppColors.textHint,
               ),
               const SizedBox(height: 32),
 
@@ -292,10 +262,12 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
     required String hintText,
     Widget? prefixIcon,
     TextInputType? keyboardType,
+    bool autofocus = false,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      autofocus: autofocus,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: AppColors.textHint),
@@ -323,39 +295,194 @@ class _CreateProjectDialogState extends State<CreateProjectDialog> {
     );
   }
 
-  Widget _buildDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedClient,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+  Widget _buildDropdown({
+    String? value,
+    List<String>? dropdownItems,
+    String? hint,
+    void Function(String?)? onChanged,
+  }) {
+    final controller = Get.find<ProjectController>();
+
+    Widget buildDropdownField() {
+      return DropdownButtonFormField<String>(
+        value: value ?? _selectedClient,
+        isExpanded: true,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.primary),
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+        icon: const Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: AppColors.textHint,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary),
+        hint: Text(
+          hint ?? 'Select Client',
+          style: const TextStyle(color: AppColors.textHint),
+        ),
+        items: [
+          if (dropdownItems == null)
+            ...controller.clients.map(
+              (client) => DropdownMenuItem(value: client, child: Text(client)),
+            ),
+          if (dropdownItems != null)
+            ...dropdownItems.map(
+              (item) => DropdownMenuItem(
+                value: item,
+                child: Text(
+                  item,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          if (dropdownItems == null) ...[
+            const DropdownMenuItem(
+              value: 'ADD_NEW',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.add_circle_outline,
+                    size: 18,
+                    color: Color(0xFF14B8A6),
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Add New Client...',
+                    style: TextStyle(
+                      color: Color(0xFF14B8A6),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+        onChanged: (val) {
+          if (onChanged != null) {
+            onChanged(val);
+          } else if (val == 'ADD_NEW') {
+            _showAddClientDialog();
+          } else {
+            setState(() => _selectedClient = val);
+          }
+        },
+      );
+    }
+
+    // Only use Obx if we are displaying reactive clients
+    if (dropdownItems == null) {
+      return Obx(() => buildDropdownField());
+    }
+
+    return buildDropdownField();
+  }
+
+  Widget _buildCurrencyDropdown() {
+    return _buildDropdown(
+      value: _selectedCurrency,
+      dropdownItems: ['USD', 'INR', 'EUR', 'GBP'],
+      hint: 'Select Currency',
+      onChanged: (val) {
+        if (val != null) {
+          setState(() => _selectedCurrency = val);
+        }
+      },
+    );
+  }
+
+  void _showAddClientDialog() {
+    final clientNameCtrl = TextEditingController();
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Add New Client',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Enter the name of the new client to add to your list.',
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 24),
+              _buildLabel('Client Name'),
+              const SizedBox(height: 8),
+              _buildTextField(
+                controller: clientNameCtrl,
+                hintText: 'e.g. Acme Corporation',
+                autofocus: true,
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      final name = clientNameCtrl.text.trim();
+                      if (name.isNotEmpty) {
+                        final controller = Get.find<ProjectController>();
+                        controller.addClient(name);
+                        setState(() => _selectedClient = name);
+                        Get.back();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF14B8A6),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Add Client'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-      icon: const Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: AppColors.textHint,
-      ),
-      hint: const Text(
-        'Select a client',
-        style: TextStyle(color: AppColors.textHint),
-      ),
-      items: const [
-        DropdownMenuItem(value: 'Acme Corp', child: Text('Acme Corp')),
-        DropdownMenuItem(value: 'Global Tech', child: Text('Global Tech')),
-        DropdownMenuItem(value: 'Starlight Inc', child: Text('Starlight Inc')),
-      ],
-      onChanged: (val) => setState(() => _selectedClient = val),
     );
   }
 

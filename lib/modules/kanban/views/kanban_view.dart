@@ -22,7 +22,7 @@ class KanbanView extends GetView<KanbanController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${controller.currentProject.name} Board',
+                  '${controller.currentProject.value?.name ?? ""} Board',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

@@ -11,6 +11,7 @@ class ProjectController extends GetxController {
     : _repository = repository ?? ProjectRepository();
 
   final RxList<ProjectModel> projects = <ProjectModel>[].obs;
+  final RxList<String> clients = <String>[].obs;
   final RxBool isLoading = true.obs;
   final Rxn<ProjectModel> selectedProject = Rxn<ProjectModel>();
 
@@ -22,6 +23,9 @@ class ProjectController extends GetxController {
   void onInit() {
     super.onInit();
     projects.bindStream(_repository.getProjectsStream());
+
+    // Initialize mock clients if empty
+    clients.addAll(['Acme Corp', 'Global Tech', 'Starlight Inc']);
 
     // Listen for completion of initial load
     ever(projects, (_) {
@@ -75,6 +79,12 @@ class ProjectController extends GetxController {
       Get.snackbar('Success', 'Project created successfully');
     } catch (e) {
       Get.snackbar('Error', 'Failed to create project: $e');
+    }
+  }
+
+  void addClient(String name) {
+    if (name.isNotEmpty && !clients.contains(name)) {
+      clients.add(name);
     }
   }
 

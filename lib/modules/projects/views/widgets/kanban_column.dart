@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../data/models/task_model.dart';
+import '../../../kanban/controllers/kanban_controller.dart';
 import 'kanban_card.dart';
 
 class KanbanColumn extends StatelessWidget {
@@ -26,33 +28,57 @@ class KanbanColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 320,
-      margin: const EdgeInsets.only(right: 24),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FB),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return KanbanCard(
-                  task: task,
-                  isRecording: task.id == activeTaskId,
-                  onTap: () => onTaskTap?.call(task),
-                  onPlayPressed: () => onTaskPlay?.call(task),
-                );
-              },
+    return DragTarget<TaskModel>(
+      onWillAccept: (data) => data?.status != status,
+      onAccept: (task) {
+        // Find the controller and update the status
+        try {
+          final controller = Get.find<KanbanController>();
+          controller.updateTaskStatus(task, status);
+        } catch (e) {
+          debugPrint('Error updating task status: $e');
+        }
+      },
+      builder: (context, candidateData, rejectedData) {
+        bool isHovering = candidateData.isNotEmpty;
+
+        return Container(
+          width: 320,
+          margin: const EdgeInsets.only(right: 24),
+          decoration: BoxDecoration(
+            color: isHovering
+                ? AppColors.primary.withOpacity(0.05)
+                : const Color(0xFFF8F9FB),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isHovering
+                  ? AppColors.primary.withOpacity(0.2)
+                  : Colors.transparent,
+              width: 2,
             ),
           ),
-        ],
-      ),
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    final task = tasks[index];
+                    return KanbanCard(
+                      task: task,
+                      isRecording: task.id == activeTaskId,
+                      onTap: () => onTaskTap?.call(task),
+                      onPlayPressed: () => onTaskPlay?.call(task),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

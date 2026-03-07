@@ -1,66 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../data/models/task_model.dart';
+import '../../../../data/models/project_model.dart';
+import '../../../kanban/controllers/kanban_controller.dart';
 import 'kanban_column.dart';
 
 class KanbanBoardView extends StatefulWidget {
-  const KanbanBoardView({super.key});
+  final ProjectModel project;
+  const KanbanBoardView({super.key, required this.project});
 
   @override
   State<KanbanBoardView> createState() => _KanbanBoardViewState();
 }
 
 class _KanbanBoardViewState extends State<KanbanBoardView> {
+  late final KanbanController controller;
   int _activeSubTabIndex = 0;
-  final String _activeTaskId = 'task-2'; // Mock active task ID
+  final String _activeTaskId =
+      'task-2'; // This should ideally come from a timer controller
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<KanbanController>();
+    // Use addPostFrameCallback to avoid setState during build if setProject
+    // triggers an immediate update that Obx might react to while building.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        controller.setProject(widget.project);
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(KanbanBoardView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.project.id != widget.project.id) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          controller.setProject(widget.project);
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSubNavigation(),
-        const SizedBox(height: 8),
-        const Divider(color: AppColors.divider),
-        const SizedBox(height: 32),
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                KanbanColumn(
-                  title: 'Backlog',
-                  status: TaskStatus.backlog,
-                  tasks: _getMockTasks(TaskStatus.backlog),
-                  onAddPressed: () {},
-                ),
-                KanbanColumn(
-                  title: 'In Progress',
-                  status: TaskStatus.inProgress,
-                  tasks: _getMockTasks(TaskStatus.inProgress),
-                  activeTaskId: _activeTaskId,
-                  onAddPressed: () {},
-                ),
-                KanbanColumn(
-                  title: 'Review',
-                  status: TaskStatus.review,
-                  tasks: _getMockTasks(TaskStatus.review),
-                  onAddPressed: () {},
-                ),
-                KanbanColumn(
-                  title: 'Done',
-                  status: TaskStatus.done,
-                  tasks: _getMockTasks(TaskStatus.done),
-                  onAddPressed: () {},
-                ),
-              ],
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSubNavigation(),
+          const SizedBox(height: 8),
+          const Divider(color: AppColors.divider),
+          const SizedBox(height: 32),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  KanbanColumn(
+                    title: 'Backlog',
+                    status: TaskStatus.backlog,
+                    tasks: controller.getTasksForStatus(TaskStatus.backlog),
+                    onAddPressed: () {},
+                  ),
+                  KanbanColumn(
+                    title: 'In Progress',
+                    status: TaskStatus.inProgress,
+                    tasks: controller.getTasksForStatus(TaskStatus.inProgress),
+                    activeTaskId: _activeTaskId,
+                    onAddPressed: () {},
+                  ),
+                  KanbanColumn(
+                    title: 'Review',
+                    status: TaskStatus.review,
+                    tasks: controller.getTasksForStatus(TaskStatus.review),
+                    onAddPressed: () {},
+                  ),
+                  KanbanColumn(
+                    title: 'Done',
+                    status: TaskStatus.done,
+                    tasks: controller.getTasksForStatus(TaskStatus.done),
+                    onAddPressed: () {},
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildSubNavigation() {
@@ -71,6 +107,21 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
         _buildSubTab(1, Icons.table_chart_outlined, 'Table View'),
         const SizedBox(width: 32),
         _buildSubTab(2, Icons.timeline_outlined, 'Timeline'),
+        const Spacer(),
+        TextButton.icon(
+          onPressed: () => controller.seedMockTasks(),
+          icon: const Icon(Icons.auto_awesome, size: 18),
+          label: const Text('Seed Tasks'),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: AppColors.primary.withOpacity(0.2)),
+            ),
+          ),
+        ),
+        const SizedBox(width: 40),
       ],
     );
   }
@@ -108,94 +159,5 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
         ),
       ),
     );
-  }
-
-  List<TaskModel> _getMockTasks(TaskStatus status) {
-    switch (status) {
-      case TaskStatus.backlog:
-        return [
-          TaskModel(
-            id: 'task-1',
-            title: 'Mobile Wireframes V2',
-            description:
-                'Complete the remaining screens for the onboarding flow and user profile...',
-            status: TaskStatus.backlog,
-            priority: TaskPriority.medium,
-            estimatedHours: 8,
-            trackedMinutes: 0,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-          TaskModel(
-            id: 'task-5',
-            title: 'Client API Integration',
-            description:
-                'Connect the dashboard cards to the real-time analytics API for live metrics.',
-            status: TaskStatus.backlog,
-            priority: TaskPriority.high,
-            estimatedHours: 5,
-            trackedMinutes: 0,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-        ];
-      case TaskStatus.inProgress:
-        return [
-          TaskModel(
-            id: 'task-2',
-            title: 'Dark Mode Implementation',
-            description:
-                'Applying the dark theme palette across all major UI components and testing...',
-            status: TaskStatus.inProgress,
-            priority: TaskPriority.high,
-            estimatedHours: 4,
-            trackedMinutes: 150, // 2.5h
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-          TaskModel(
-            id: 'task-6',
-            title: 'Project Icon Set',
-            description:
-                'Export and organize the custom Material Symbol based icons for the developer...',
-            status: TaskStatus.inProgress,
-            priority: TaskPriority.medium,
-            estimatedHours: 3,
-            trackedMinutes: 60, // 1h
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-        ];
-      case TaskStatus.review:
-        return [
-          TaskModel(
-            id: 'task-3',
-            title: 'User Persona Docs',
-            description:
-                'Final polish on user interview transcripts and synthesized personas.',
-            status: TaskStatus.review,
-            priority: TaskPriority.medium,
-            estimatedHours: 12,
-            trackedMinutes: 720, // 12h
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-        ];
-      case TaskStatus.done:
-        return [
-          TaskModel(
-            id: 'task-4',
-            title: 'Style Guide V1',
-            description:
-                'Initial draft of the core typography and color variables for the app.',
-            status: TaskStatus.done,
-            priority: TaskPriority.low,
-            estimatedHours: 6,
-            trackedMinutes: 360, // 6h
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-        ];
-    }
   }
 }

@@ -45,9 +45,9 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.background,
-      child: CustomScrollView(
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _buildTopHeader(widget.project)),
           _buildTabContent(widget.project),
@@ -262,11 +262,11 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
       case 0:
         return SliverToBoxAdapter(child: _buildOverviewContent(project));
       case 1:
-        return const SliverFillRemaining(
+        return SliverFillRemaining(
           hasScrollBody: true,
           child: Padding(
             padding: EdgeInsets.only(top: 16, left: 40),
-            child: KanbanBoardView(),
+            child: KanbanBoardView(project: project),
           ),
         );
       case 2:
