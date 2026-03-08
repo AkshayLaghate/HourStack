@@ -4,12 +4,14 @@ class UserModel {
   final String id;
   final String name;
   final String email;
+  final String? photoUrl;
   final DateTime createdAt;
 
   UserModel({
     required this.id,
     required this.name,
     required this.email,
+    this.photoUrl,
     required this.createdAt,
   });
 
@@ -18,6 +20,7 @@ class UserModel {
       id: documentId,
       name: map['name'] ?? '',
       email: map['email'] ?? '',
+      photoUrl: map['photoUrl'],
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -26,6 +29,7 @@ class UserModel {
     return {
       'name': name,
       'email': email,
+      'photoUrl': photoUrl,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/project_model.dart';
 import '../services/auth_service.dart';
 import 'package:get/get.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ProjectRepository {
   FirebaseFirestore? _firestore;
@@ -41,5 +44,23 @@ class ProjectRepository {
 
   Future<void> deleteProject(String projectId) async {
     await _getProjectsCollection().doc(projectId).delete();
+  }
+
+  Future<String?> uploadProjectCover(XFile file, String projectId) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+
+    final storageRef = FirebaseStorage.instance.ref();
+    final coverRef = storageRef.child(
+      'users/$currentUserId/projects/$projectId/cover.jpg',
+    );
+
+    if (GetPlatform.isWeb) {
+      final bytes = await file.readAsBytes();
+      await coverRef.putData(bytes);
+    } else {
+      await coverRef.putFile(File(file.path));
+    }
+
+    return await coverRef.getDownloadURL();
   }
 }

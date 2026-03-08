@@ -12,6 +12,8 @@ import 'widgets/milestone_card.dart';
 import 'widgets/kanban_board_view.dart';
 import 'widgets/analytics_tab_view.dart';
 
+import 'widgets/project_form_dialog.dart';
+
 class ProjectDetailView extends StatefulWidget {
   final ProjectModel project;
   const ProjectDetailView({super.key, required this.project});
@@ -129,7 +131,8 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                     Row(
                       children: [
                         OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () =>
+                              Get.dialog(ProjectFormDialog(project: project)),
                           icon: const Icon(Icons.edit_outlined, size: 18),
                           label: const Text('Edit Project'),
                           style: OutlinedButton.styleFrom(

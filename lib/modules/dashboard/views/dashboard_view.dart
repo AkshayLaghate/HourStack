@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/dashboard_controller.dart';
+import 'package:intl/intl.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../app/utils/constants.dart';
@@ -23,7 +24,7 @@ class DashboardView extends GetView<DashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           const SizedBox(height: 40),
           _buildStatsGrid(isDesktop),
           const SizedBox(height: 32),
@@ -78,55 +79,122 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Dashboard', style: AppTextStyles.h1),
-            SizedBox(height: 4),
-            Text(
-              'Welcome back, Alex. Here\'s your productivity overview.',
-              style: AppTextStyles.bodyMedium,
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Dashboard', style: AppTextStyles.h1),
+                SizedBox(height: 4),
+                Text(
+                  'Welcome back, Alex. Here\'s your productivity overview.',
+                  style: AppTextStyles.bodyMedium,
+                ),
+              ],
+            ),
+            Obx(
+              () => InkWell(
+                onTap: () => controller.selectDateRange(context),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_rounded,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _formatDateRange(),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.calendar_today_rounded,
-                size: 16,
-                color: AppColors.textSecondary,
+        const SizedBox(height: 24),
+        Obx(
+          () => SegmentedButton<DateRangeType>(
+            segments: const [
+              ButtonSegment(
+                value: DateRangeType.day,
+                label: Text('Day'),
+                icon: Icon(Icons.today),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Oct 24, 2023',
-                style: AppTextStyles.bodySmall.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+              ButtonSegment(
+                value: DateRangeType.week,
+                label: Text('Week'),
+                icon: Icon(Icons.date_range),
+              ),
+              ButtonSegment(
+                value: DateRangeType.month,
+                label: Text('Month'),
+                icon: Icon(Icons.calendar_month),
+              ),
+              ButtonSegment(
+                value: DateRangeType.custom,
+                label: Text('Custom'),
+                icon: Icon(Icons.more_horiz),
               ),
             ],
+            selected: {controller.rangeType.value},
+            onSelectionChanged: (Set<DateRangeType> newSelection) {
+              controller.setRange(newSelection.first);
+            },
+            style: SegmentedButton.styleFrom(
+              backgroundColor: Colors.white,
+              selectedBackgroundColor: AppColors.primary,
+              selectedForegroundColor: Colors.white,
+              side: const BorderSide(color: AppColors.border),
+            ),
           ),
         ),
       ],
     );
   }
 
+  String _formatDateRange() {
+    final type = controller.rangeType.value;
+    final start = controller.startDate.value;
+    final end = controller.endDate.value;
+
+    if (type == DateRangeType.day) {
+      return DateFormat('MMM dd, yyyy').format(start);
+    } else if (type == DateRangeType.week) {
+      return '${DateFormat('MMM dd').format(start)} - ${DateFormat('MMM dd, yyyy').format(end)}';
+    } else if (type == DateRangeType.month) {
+      return DateFormat('MMMM yyyy').format(start);
+    } else {
+      return '${DateFormat('MMM dd').format(start)} - ${DateFormat('MMM dd').format(end)}';
+    }
+  }
+
   Widget _buildStatsGrid(bool isDesktop) {
     return Obx(() {
       final stats = [
         StatCard(
-          title: 'Today\'s Hours',
-          value: _formatHours(controller.todayHours.value),
+          title: 'Period Hours',
+          value: _formatHours(controller.periodTotalHours.value),
           trend:
               '+5.2%', // Trend could be calculated if we had yesterday's data
           isPositive: true,
@@ -135,9 +203,9 @@ class DashboardView extends GetView<DashboardController> {
           iconBgColor: const Color(0xFFEFF6FF),
         ),
         StatCard(
-          title: 'Monthly Revenue',
+          title: 'Period Revenue',
           value:
-              '${AppConstants.defaultCurrencySymbol}${controller.monthlyRevenue.value.toStringAsFixed(0)}',
+              '${AppConstants.defaultCurrencySymbol}${controller.periodTotalRevenue.value.toStringAsFixed(0)}',
           trend: '+12%',
           isPositive: true,
           icon: Icons.attach_money_rounded,

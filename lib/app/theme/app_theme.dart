@@ -19,12 +19,10 @@ class AppTheme {
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
       secondary: AppColors.primary,
-      surface: AppColors.card,
-      background: AppColors.background,
+      surface: AppColors.background,
       error: AppColors.error,
       onPrimary: Colors.white,
       onSurface: AppColors.textPrimary,
-      onBackground: AppColors.textPrimary,
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(

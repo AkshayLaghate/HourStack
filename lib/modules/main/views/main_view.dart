@@ -6,7 +6,7 @@ import '../../projects/views/project_list_view.dart';
 import '../../projects/views/project_detail_view.dart';
 import '../../projects/controllers/project_controller.dart';
 import '../../reports/views/reports_view.dart';
-import '../../kanban/views/kanban_view.dart';
+import '../../settings/views/settings_view.dart';
 import '../../calendar/views/calendar_view.dart';
 import '../../dashboard/views/widgets/side_menu.dart';
 import '../../../app/theme/app_colors.dart';
@@ -38,9 +38,9 @@ class MainView extends GetView<MainController> {
                     }
                     return const ProjectListView();
                   }),
-                  const KanbanView(),
                   const CalendarView(),
                   const ReportsView(),
+                  const SettingsView(),
                 ],
               ),
             ),

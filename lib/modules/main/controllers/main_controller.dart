@@ -18,9 +18,14 @@ class MainController extends GetxController {
         _selectedIndex.value = 1;
         break;
       case '/reports':
+        _selectedIndex.value = 3;
+        break;
+      case '/calendar':
         _selectedIndex.value = 2;
         break;
-      // Add more as needed
+      case '/settings':
+        _selectedIndex.value = 4;
+        break;
     }
   }
 }

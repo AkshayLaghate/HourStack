@@ -7,7 +7,7 @@ import '../../../app/theme/app_text_styles.dart';
 import 'widgets/project_card.dart';
 import 'widgets/new_project_card.dart';
 import 'widgets/monthly_goal_card.dart';
-import 'widgets/create_project_dialog.dart';
+import 'widgets/project_form_dialog.dart';
 
 class ProjectListView extends GetView<ProjectController> {
   const ProjectListView({super.key});
@@ -110,7 +110,7 @@ class ProjectListView extends GetView<ProjectController> {
           const SizedBox(width: 24),
           ElevatedButton.icon(
             onPressed: () =>
-                Get.dialog(const CreateProjectDialog()), // Trigger Add Project
+                Get.dialog(const ProjectFormDialog()), // Trigger Add Project
             icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('Add Project'),
             style: ElevatedButton.styleFrom(
@@ -164,6 +164,6 @@ class ProjectListView extends GetView<ProjectController> {
   }
 
   void _showAddProjectDialog(BuildContext context) {
-    Get.dialog(const CreateProjectDialog());
+    Get.dialog(const ProjectFormDialog());
   }
 }

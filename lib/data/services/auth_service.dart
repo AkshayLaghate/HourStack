@@ -129,6 +129,7 @@ class AuthService extends GetxService {
             id: user.uid,
             name: user.displayName ?? 'Google User',
             email: user.email ?? '',
+            photoUrl: user.photoURL,
             createdAt: DateTime.now(),
           );
           await _firestore
@@ -136,6 +137,16 @@ class AuthService extends GetxService {
               .doc(newUser.id)
               .set(newUser.toMap());
           currentUser.value = newUser;
+        } else {
+          // Update photoUrl if it's missing in the document
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          if (data['photoUrl'] == null && user.photoURL != null) {
+            await _firestore.collection('users').doc(user.uid).update({
+              'photoUrl': user.photoURL,
+            });
+            // Re-fetch to update currentUser
+            await _fetchUserData(user.uid);
+          }
         }
       }
     } catch (e) {

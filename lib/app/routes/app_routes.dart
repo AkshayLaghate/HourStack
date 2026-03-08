@@ -10,4 +10,5 @@ abstract class Routes {
   static const CALENDAR = '/calendar';
   static const REPORTS = '/reports';
   static const FOCUS = '/focus';
+  static const SETTINGS = '/settings';
 }

@@ -274,7 +274,7 @@ class FocusView extends StatelessWidget {
                   Expanded(
                     child: _buildStatCard(
                       'Today\'s Total Hours',
-                      '${dashboardController.todayHours.value} hrs',
+                      '${dashboardController.periodTotalHours.value} hrs',
                       '+1.2%',
                       AppColors.successLight,
                       AppColors.success,
@@ -285,7 +285,7 @@ class FocusView extends StatelessWidget {
                   Expanded(
                     child: _buildStatCard(
                       'Today\'s Revenue',
-                      '\$${dashboardController.todayRevenue.value}',
+                      '\$${dashboardController.periodTotalRevenue.value}',
                       '+15%',
                       AppColors.infoLight,
                       AppColors.info,

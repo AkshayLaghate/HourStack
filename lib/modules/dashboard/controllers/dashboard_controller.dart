@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../data/models/session_model.dart';
@@ -6,17 +7,38 @@ import '../../../data/repositories/session_repository.dart';
 import '../../../data/repositories/project_repository.dart';
 import 'package:intl/intl.dart';
 
+enum DateRangeType { day, week, month, custom }
+
 class DashboardController extends GetxController {
   final SessionRepository _sessionRepo = Get.find<SessionRepository>();
   final ProjectRepository _projectRepo = Get.find<ProjectRepository>();
 
   // Dashboard stats
-  final todayHours = 0.0.obs;
-  final todayRevenue = 0.0.obs;
+  final periodTotalHours = 0.0.obs;
+  final periodTotalRevenue = 0.0.obs;
   final monthlyHours = 0.0.obs;
   final monthlyRevenue = 0.0.obs;
   final upcomingTasksCount = 0.obs;
   final tasksInProgressCount = 0.obs;
+
+  // Date Range
+  final rangeType = DateRangeType.day.obs;
+  final startDate = DateTime.now().obs;
+  final endDate = DateTime.now().obs;
+  final selectedDate = DateTime.now().obs; // Keep for picker initial value
+
+  String get rangeLabel {
+    switch (rangeType.value) {
+      case DateRangeType.day:
+        return 'Daily Activity';
+      case DateRangeType.week:
+        return 'Weekly Activity';
+      case DateRangeType.month:
+        return 'Monthly Activity';
+      case DateRangeType.custom:
+        return 'Custom Range Activity';
+    }
+  }
 
   // Chart data
   final billableData = <double>[0, 0, 0, 0, 0, 0, 0].obs;
@@ -45,7 +67,7 @@ class DashboardController extends GetxController {
   Future<void> loadDashboardData() async {
     isLoading.value = true;
     try {
-      await Future.wait([loadWeeklyData(), loadMonthlyAndTodayStats()]);
+      await Future.wait([loadChartData(), loadPeriodStats()]);
     } catch (e) {
       debugPrint('Error loading dashboard data: $e');
     } finally {
@@ -53,96 +75,264 @@ class DashboardController extends GetxController {
     }
   }
 
-  Future<void> loadMonthlyAndTodayStats() async {
-    final now = DateTime.now();
-    final todayKey = DateFormat('yyyy-MM-dd').format(now);
-    final monthKey = DateFormat('yyyy-MM').format(now);
+  void setRange(
+    DateRangeType type, {
+    DateTime? date,
+    DateTimeRange? customRange,
+  }) {
+    rangeType.value = type;
+    final now = date ?? selectedDate.value;
+    selectedDate.value = now;
 
-    final List<SessionModel> monthSessions = await _sessionRepo
-        .getSessionsForMonthStream(monthKey)
-        .first;
+    switch (type) {
+      case DateRangeType.day:
+        startDate.value = DateTime(now.year, now.month, now.day);
+        endDate.value = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+        break;
+      case DateRangeType.week:
+        // Assume Monday start
+        int daysToSubtract = now.weekday - 1;
+        final start = now.subtract(Duration(days: daysToSubtract));
+        startDate.value = DateTime(start.year, start.month, start.day);
+        final end = start.add(const Duration(days: 6));
+        endDate.value = DateTime(end.year, end.month, end.day, 23, 59, 59, 999);
+        break;
+      case DateRangeType.month:
+        startDate.value = DateTime(now.year, now.month, 1);
+        final nextMonth = DateTime(now.year, now.month + 1, 1);
+        endDate.value = nextMonth.subtract(const Duration(milliseconds: 1));
+        break;
+      case DateRangeType.custom:
+        if (customRange != null) {
+          startDate.value = DateTime(
+            customRange.start.year,
+            customRange.start.month,
+            customRange.start.day,
+          );
+          endDate.value = DateTime(
+            customRange.end.year,
+            customRange.end.month,
+            customRange.end.day,
+            23,
+            59,
+            59,
+            999,
+          );
+        }
+        break;
+    }
+    loadDashboardData();
+  }
+
+  Future<void> selectDateRange(BuildContext context) async {
+    if (rangeType.value == DateRangeType.day) {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate.value,
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2101),
+      );
+      if (picked != null) setRange(DateRangeType.day, date: picked);
+    } else if (rangeType.value == DateRangeType.week) {
+      // Pick a day and calculate week
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate.value,
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2101),
+      );
+      if (picked != null) setRange(DateRangeType.week, date: picked);
+    } else if (rangeType.value == DateRangeType.month) {
+      // Simple date picker for month (ignoring the day)
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate.value,
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2101),
+      );
+      if (picked != null) setRange(DateRangeType.month, date: picked);
+    } else if (rangeType.value == DateRangeType.custom) {
+      final DateTimeRange? picked = await showDateRangePicker(
+        context: context,
+        initialDateRange: DateTimeRange(
+          start: startDate.value,
+          end: endDate.value,
+        ),
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2101),
+      );
+      if (picked != null) setRange(DateRangeType.custom, customRange: picked);
+    }
+  }
+
+  Future<void> selectDate(context) async {
+    // Legacy mapping - we'll update view to use selectDateRange
+    selectDateRange(context);
+  }
+
+  Future<void> loadPeriodStats() async {
+    final start = startDate.value;
+    final end = endDate.value;
+
     final List<ProjectModel> projects = await _projectRepo
         .getProjectsStream()
         .first;
     final pMap = {for (var p in projects) p.id: p};
     projectMap.value = pMap;
 
-    double tHours = 0;
-    double tRevenue = 0;
-    double mHours = 0;
-    double mRevenue = 0;
+    // Fetch sessions for the range (using a simplified method or custom logic)
+    // For now, we'll fetch month sessions and filter locally as a proxy
+    // ideally we'd have a repository method for range
+    final monthKey = DateFormat('yyyy-MM').format(start);
+    final List<SessionModel> sessions = await _sessionRepo
+        .getSessionsForMonthStream(monthKey)
+        .first;
 
-    // Sort sessions by startTime descending
-    final List<SessionModel> sortedSessions = List.from(monthSessions)
-      ..sort((a, b) => b.startTime.compareTo(a.startTime));
+    // Also fetch for end month if different
+    final endMonthKey = DateFormat('yyyy-MM').format(end);
+    if (endMonthKey != monthKey) {
+      final List<SessionModel> endSessions = await _sessionRepo
+          .getSessionsForMonthStream(endMonthKey)
+          .first;
+      sessions.addAll(endSessions);
+    }
 
-    for (SessionModel session in sortedSessions) {
-      final ProjectModel? project = pMap[session.projectId];
-      final double hours = session.durationMinutes / 60.0;
-      final double revenue = hours * (project?.hourlyRate ?? 0.0);
+    double pHours = 0;
+    double pRevenue = 0;
 
-      mHours += hours;
-      mRevenue += revenue;
+    for (SessionModel session in sessions) {
+      if (session.startTime.isAfter(
+            start.subtract(const Duration(seconds: 1)),
+          ) &&
+          session.startTime.isBefore(end.add(const Duration(seconds: 1)))) {
+        final ProjectModel? project = pMap[session.projectId];
+        final double hours = session.durationMinutes / 60.0;
+        final double revenue = hours * (project?.hourlyRate ?? 0.0);
 
-      if (session.dateKey == todayKey) {
-        tHours += hours;
-        tRevenue += revenue;
+        pHours += hours;
+        pRevenue += revenue;
       }
     }
 
-    recentSessions.value = sortedSessions.take(5).toList();
-    todayHours.value = tHours;
-    todayRevenue.value = tRevenue;
+    recentSessions.value = sessions
+      ..sort((a, b) => b.startTime.compareTo(a.startTime))
+      ..take(5).toList();
+    periodTotalHours.value = pHours;
+    periodTotalRevenue.value = pRevenue;
+
+    // Keep monthly stats as they are (based on current date)
+    _loadFixedMonthlyStats(pMap);
+  }
+
+  Future<void> _loadFixedMonthlyStats(Map<String, ProjectModel> pMap) async {
+    final now = DateTime.now();
+    final monthKey = DateFormat('yyyy-MM').format(now);
+    final sessions = await _sessionRepo
+        .getSessionsForMonthStream(monthKey)
+        .first;
+
+    double mHours = 0;
+    double mRevenue = 0;
+    for (var session in sessions) {
+      final project = pMap[session.projectId];
+      final hours = session.durationMinutes / 60.0;
+      mHours += hours;
+      mRevenue += hours * (project?.hourlyRate ?? 0.0);
+    }
     monthlyHours.value = mHours;
     monthlyRevenue.value = mRevenue;
   }
 
-  Future<void> loadWeeklyData() async {
-    final now = DateTime.now();
-    final last7Days = List.generate(
-      7,
-      (index) => now.subtract(Duration(days: 6 - index)),
-    );
+  Future<void> loadChartData() async {
+    final start = startDate.value;
+    final end = endDate.value;
+    final type = rangeType.value;
 
-    final labels = last7Days
-        .map((date) => DateFormat('E').format(date))
-        .toList();
+    if (type == DateRangeType.day) {
+      // Hourly view for current day
+      const dataPoints = 24;
+      final labels = List.generate(
+        dataPoints,
+        (i) => '${i.toString().padLeft(2, '0')}h',
+      );
+      final billable = List<double>.filled(dataPoints, 0.0);
+      final nonBillable = List<double>.filled(dataPoints, 0.0);
+
+      final dateKey = DateFormat('yyyy-MM-dd').format(start);
+      final sessions = await _sessionRepo
+          .getSessionsForDateStream(dateKey)
+          .first;
+      final projects = await _projectRepo.getProjectsStream().first;
+      final projectMap = {for (var p in projects) p.id: p};
+
+      for (var session in sessions) {
+        final hour = session.startTime.hour;
+        if (hour < dataPoints) {
+          final project = projectMap[session.projectId];
+          final bool isBillable = project?.isBillable ?? true;
+          if (isBillable) {
+            billable[hour] += session.durationMinutes / 60.0;
+          } else {
+            nonBillable[hour] += session.durationMinutes / 60.0;
+          }
+        }
+      }
+
+      chartLabels.value = labels;
+      billableData.value = billable;
+      nonBillableData.value = nonBillable;
+      return;
+    }
+
+    final duration = end.difference(start).inDays + 1;
+    final List<DateTime> dates;
+    if (duration <= 7) {
+      dates = List.generate(duration, (i) => start.add(Duration(days: i)));
+    } else if (duration <= 31) {
+      dates = List.generate(duration, (i) => start.add(Duration(days: i)));
+    } else {
+      // Just last 30 days if range is too long for daily chart
+      dates = List.generate(30, (i) => end.subtract(Duration(days: 29 - i)));
+    }
+
+    final labels = dates.map((date) => DateFormat('dd').format(date)).toList();
     chartLabels.value = labels;
 
-    final billable = List<double>.filled(7, 0.0);
-    final nonBillable = List<double>.filled(7, 0.0);
+    final billable = List<double>.filled(dates.length, 0.0);
+    final nonBillable = List<double>.filled(dates.length, 0.0);
 
-    // Fetch all projects to check billability
     final projects = await _projectRepo.getProjectsStream().first;
     final projectMap = {for (var p in projects) p.id: p};
 
-    for (int i = 0; i < 7; i++) {
-      final date = last7Days[i];
+    for (int i = 0; i < dates.length; i++) {
+      final date = dates[i];
       final dateKey = DateFormat('yyyy-MM-dd').format(date);
-
       final sessions = await _sessionRepo
           .getSessionsForDateStream(dateKey)
           .first;
 
-      double dayBillableMinutes = 0;
-      double dayNonBillableMinutes = 0;
-
-      for (SessionModel session in sessions) {
-        final ProjectModel? project = projectMap[session.projectId];
+      for (var session in sessions) {
+        final project = projectMap[session.projectId];
         final bool isBillable = project?.isBillable ?? true;
-
         if (isBillable) {
-          dayBillableMinutes += session.durationMinutes;
+          billable[i] += session.durationMinutes / 60.0;
         } else {
-          dayNonBillableMinutes += session.durationMinutes;
+          nonBillable[i] += session.durationMinutes / 60.0;
         }
       }
-
-      billable[i] = dayBillableMinutes / 60.0;
-      nonBillable[i] = dayNonBillableMinutes / 60.0;
     }
 
     billableData.value = billable;
     nonBillableData.value = nonBillable;
+  }
+
+  Future<void> loadMonthlyAndTodayStats() async {
+    // Legacy - mapped to loadPeriodStats
+    loadPeriodStats();
+  }
+
+  Future<void> loadWeeklyData() async {
+    // Legacy - mapped to loadChartData
+    loadChartData();
   }
 }

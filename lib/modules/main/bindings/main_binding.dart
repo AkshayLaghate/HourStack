@@ -6,6 +6,7 @@ import '../../reports/controllers/reports_controller.dart';
 import '../../calendar/controllers/calendar_controller.dart';
 import '../../kanban/controllers/kanban_controller.dart';
 import '../../timer/controllers/timer_controller.dart';
+import '../../settings/controllers/settings_controller.dart';
 import '../../../data/repositories/session_repository.dart';
 import '../../../data/repositories/project_repository.dart';
 import '../../../data/repositories/task_repository.dart';
@@ -20,6 +21,7 @@ class MainBinding extends Bindings {
     Get.lazyPut<CalendarController>(() => CalendarController());
     Get.lazyPut<KanbanController>(() => KanbanController());
     Get.lazyPut<TimerController>(() => TimerController());
+    Get.lazyPut<SettingsController>(() => SettingsController());
 
     // Repositories
     Get.lazyPut<SessionRepository>(() => SessionRepository());

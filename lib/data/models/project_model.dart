@@ -27,6 +27,8 @@ class ProjectModel {
   final double thisWeekHours;
   final double lastWeekHours;
   final double milestoneProgress;
+  final DateTime? deadline;
+  final String? coverImageUrl;
 
   ProjectModel({
     required this.id,
@@ -52,6 +54,8 @@ class ProjectModel {
     this.thisWeekHours = 0.0,
     this.lastWeekHours = 0.0,
     this.milestoneProgress = 0.0,
+    this.deadline,
+    this.coverImageUrl,
   });
 
   factory ProjectModel.fromMap(Map<String, dynamic> map, String documentId) {
@@ -79,6 +83,8 @@ class ProjectModel {
       thisWeekHours: (map['thisWeekHours'] ?? 0.0).toDouble(),
       lastWeekHours: (map['lastWeekHours'] ?? 0.0).toDouble(),
       milestoneProgress: (map['milestoneProgress'] ?? 0.0).toDouble(),
+      deadline: (map['deadline'] as Timestamp?)?.toDate(),
+      coverImageUrl: map['coverImageUrl'],
     );
   }
 
@@ -106,6 +112,8 @@ class ProjectModel {
       'thisWeekHours': thisWeekHours,
       'lastWeekHours': lastWeekHours,
       'milestoneProgress': milestoneProgress,
+      'deadline': deadline != null ? Timestamp.fromDate(deadline!) : null,
+      'coverImageUrl': coverImageUrl,
     };
   }
 }

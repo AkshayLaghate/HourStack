@@ -23,7 +23,7 @@ class ActivityChart extends GetView<DashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Weekly Activity', style: AppTextStyles.h2),
+              Obx(() => Text(controller.rangeLabel, style: AppTextStyles.h2)),
               Row(
                 children: [
                   _buildLegendItem('Billable', AppColors.primary),
@@ -46,6 +46,7 @@ class ActivityChart extends GetView<DashboardController> {
               height: 200,
               child: LineChart(
                 LineChartData(
+                  minY: 0,
                   lineTouchData: LineTouchData(
                     touchTooltipData: LineTouchTooltipData(
                       getTooltipColor: (touchedSpot) => AppColors.card,
@@ -74,8 +75,17 @@ class ActivityChart extends GetView<DashboardController> {
                         interval: 1,
                         getTitlesWidget: (value, meta) {
                           final index = value.toInt();
+                          final total = controller.chartLabels.length;
+
+                          // If there are many points (like 24 hours), show fewer labels
+                          int interval = 1;
+                          if (total > 12) {
+                            interval = (total / 6).ceil();
+                          }
+
                           if (index >= 0 &&
-                              index < controller.chartLabels.length) {
+                              index < total &&
+                              index % interval == 0) {
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
@@ -107,6 +117,7 @@ class ActivityChart extends GetView<DashboardController> {
                           .map((e) => FlSpot(e.key.toDouble(), e.value))
                           .toList(),
                       isCurved: true,
+                      preventCurveOverShooting: true,
                       color: AppColors.primary,
                       barWidth: 3,
                       isStrokeCapRound: true,
@@ -130,6 +141,7 @@ class ActivityChart extends GetView<DashboardController> {
                           .map((e) => FlSpot(e.key.toDouble(), e.value))
                           .toList(),
                       isCurved: true,
+                      preventCurveOverShooting: true,
                       color: AppColors.textHint.withAlpha((0.3 * 255).toInt()),
                       barWidth: 2,
                       isStrokeCapRound: true,
