@@ -5,26 +5,74 @@ import '../../../data/models/session_model.dart';
 import '../../../data/models/project_model.dart';
 import '../../../data/models/task_model.dart';
 import '../../../data/repositories/session_repository.dart';
+import '../../../data/repositories/task_repository.dart';
+import '../../projects/controllers/project_controller.dart';
 
 class TimerController extends GetxController {
   final SessionRepository _repository = SessionRepository();
+  final TaskRepository _taskRepository = TaskRepository();
 
   // Active Timer State
   final RxBool isTimerRunning = false.obs;
+  final RxBool isPaused = false.obs;
   final RxInt elapsedSeconds = 0.obs;
 
   // Current Selections
   final Rx<ProjectModel?> selectedProject = Rx<ProjectModel?>(null);
   final Rx<TaskModel?> selectedTask = Rx<TaskModel?>(null);
+  final RxList<TaskModel> availableTasks = <TaskModel>[].obs;
 
   // Internal Tracking
   Timer? _ticker;
   SessionModel? _activeSession;
+  StreamSubscription? _taskSubscription;
 
   @override
   void onInit() {
     super.onInit();
     _checkActiveSessions();
+
+    // Auto-select first project if available
+    final projectController = Get.find<ProjectController>();
+    // Auto-select first project when available if nothing is selected
+    once(projectController.projects, (_) {
+      if (selectedProject.value == null &&
+          projectController.projects.isNotEmpty) {
+        setProject(projectController.projects.first);
+      }
+    });
+
+    // Listen to project changes to update tasks
+    ever(selectedProject, (ProjectModel? project) {
+      if (project != null) {
+        _loadTasksForProject(project.id);
+      } else {
+        availableTasks.clear();
+        selectedTask.value = null;
+      }
+    });
+  }
+
+  void _loadTasksForProject(String projectId) {
+    _taskSubscription?.cancel();
+    _taskSubscription = _taskRepository.getTasksStream(projectId).listen((
+      tasks,
+    ) {
+      availableTasks.value = tasks;
+      // If current selected task is no longer in the list, clear it
+      if (selectedTask.value != null &&
+          !tasks.any((t) => t.id == selectedTask.value!.id)) {
+        selectedTask.value = null;
+      }
+    });
+  }
+
+  void setProject(ProjectModel? project) {
+    selectedProject.value = project;
+  }
+
+  void setTask(TaskModel? task) {
+    selectedTask.value = task;
   }
 
   void _checkActiveSessions() {
@@ -37,9 +85,22 @@ class TimerController extends GetxController {
         elapsedSeconds.value = diff.inSeconds;
         isTimerRunning.value = true;
         _startTicker();
-        // Optionially load selected Project/Task from IDs, omitted for brevity
+
+        // Load IDs and try to find objects
+        final projectController = Get.find<ProjectController>();
+        selectedProject.value = projectController.projects.firstWhereOrNull(
+          (p) => p.id == _activeSession!.projectId,
+        );
+        // Note: selectedTask will be updated via the 'ever' listener if project matches
       }
     });
+  }
+
+  @override
+  void onClose() {
+    _ticker?.cancel();
+    _taskSubscription?.cancel();
+    super.onClose();
   }
 
   void _startTicker() {
@@ -72,10 +133,39 @@ class TimerController extends GetxController {
       final id = await _repository.createSession(newSession);
       _activeSession = newSession.copyWith(id: id);
       isTimerRunning.value = true;
+      isPaused.value = false;
       elapsedSeconds.value = 0;
       _startTicker();
     } catch (e) {
       Get.snackbar('Error', 'Failed to start timer');
+    }
+  }
+
+  void pauseTimer() {
+    if (!isTimerRunning.value || isPaused.value) return;
+    _ticker?.cancel();
+    isPaused.value = true;
+  }
+
+  Future<void> resumeTimer() async {
+    if (!isTimerRunning.value || !isPaused.value || _activeSession == null) {
+      return;
+    }
+
+    // To resume accurately across app restarts, we update the Firestore startTime
+    // such that (now - newStartTime) equal to the current elapsedSeconds.
+    final now = DateTime.now();
+    final newStartTime = now.subtract(Duration(seconds: elapsedSeconds.value));
+
+    final resumedSession = _activeSession!.copyWith(startTime: newStartTime);
+
+    try {
+      await _repository.updateSession(resumedSession);
+      _activeSession = resumedSession;
+      isPaused.value = false;
+      _startTicker();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to resume timer');
     }
   }
 
@@ -84,6 +174,7 @@ class TimerController extends GetxController {
 
     _ticker?.cancel();
     isTimerRunning.value = false;
+    isPaused.value = false;
 
     final end = DateTime.now();
     final durationMins = (elapsedSeconds.value / 60).round();

@@ -122,64 +122,77 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   Widget _buildStatsGrid(bool isDesktop) {
-    final stats = [
-      const StatCard(
-        title: 'Total Hours',
-        value: '32h 45m',
-        trend: '+5.2%',
-        isPositive: true,
-        icon: Icons.timer_rounded,
-        iconColor: Colors.blue,
-        iconBgColor: Color(0xFFEFF6FF),
-      ),
-      const StatCard(
-        title: 'Billable Amount',
-        value: '${AppConstants.defaultCurrencySymbol}2,450',
-        trend: '+12%',
-        isPositive: true,
-        icon: Icons.attach_money_rounded,
-        iconColor: Colors.green,
-        iconBgColor: Color(0xFFF0FDF4),
-      ),
-      const StatCard(
-        title: 'Active Projects',
-        value: '8',
-        trend: '2 nearing deadline',
-        isPositive: false,
-        icon: Icons.folder_rounded,
-        iconColor: Colors.blueAccent,
-        iconBgColor: Color(0xFFEEF2FF),
-      ),
-      const StatCard(
-        title: 'Pending Invoices',
-        value: '${AppConstants.defaultCurrencySymbol}850',
-        trend: 'Due in 3 days',
-        isPositive: true,
-        icon: Icons.chat_bubble_rounded,
-        iconColor: Colors.orange,
-        iconBgColor: Color(0xFFFFFBEB),
-      ),
-    ];
+    return Obx(() {
+      final stats = [
+        StatCard(
+          title: 'Today\'s Hours',
+          value: _formatHours(controller.todayHours.value),
+          trend:
+              '+5.2%', // Trend could be calculated if we had yesterday's data
+          isPositive: true,
+          icon: Icons.timer_rounded,
+          iconColor: Colors.blue,
+          iconBgColor: const Color(0xFFEFF6FF),
+        ),
+        StatCard(
+          title: 'Monthly Revenue',
+          value:
+              '${AppConstants.defaultCurrencySymbol}${controller.monthlyRevenue.value.toStringAsFixed(0)}',
+          trend: '+12%',
+          isPositive: true,
+          icon: Icons.attach_money_rounded,
+          iconColor: Colors.green,
+          iconBgColor: const Color(0xFFF0FDF4),
+        ),
+        StatCard(
+          title: 'Active Projects',
+          value: '8', // This could also be fetched from projectRepo
+          trend: '2 nearing deadline',
+          isPositive: false,
+          icon: Icons.folder_rounded,
+          iconColor: Colors.blueAccent,
+          iconBgColor: const Color(0xFFEEF2FF),
+        ),
+        StatCard(
+          title: 'Monthly Hours',
+          value: _formatHours(controller.monthlyHours.value),
+          trend: 'Updated just now',
+          isPositive: true,
+          icon: Icons.analytics_rounded,
+          iconColor: Colors.orange,
+          iconBgColor: const Color(0xFFFFFBEB),
+        ),
+      ];
 
-    if (isDesktop) {
-      return Row(
-        children: stats
-            .map(
-              (s) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: s == stats.last ? 0 : 24),
-                  child: s,
+      if (isDesktop) {
+        return Row(
+          children: stats
+              .map(
+                (s) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: s == stats.last ? 0 : 24),
+                    child: s,
+                  ),
                 ),
-              ),
-            )
-            .toList(),
-      );
-    }
+              )
+              .toList(),
+        );
+      }
 
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: stats.map((s) => SizedBox(width: 180, child: s)).toList(),
-    );
+      return Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: stats.map((s) => SizedBox(width: 180, child: s)).toList(),
+      );
+    });
+  }
+
+  String _formatHours(double hours) {
+    final int h = hours.toInt();
+    final int m = ((hours - h) * 60).round();
+    if (h > 0) {
+      return '${h}h ${m}m';
+    }
+    return '${m}m';
   }
 }

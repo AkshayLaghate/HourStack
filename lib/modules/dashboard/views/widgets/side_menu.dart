@@ -54,8 +54,14 @@ class SideMenu extends StatelessWidget {
                     onTap: () => controller.changeIndex(4),
                   ),
                   _MenuItem(
-                    icon: Icons.receipt_long_rounded,
-                    title: 'Invoices',
+                    icon: Icons.workspaces_outline,
+                    title: 'Projects',
+                    isActive: false,
+                    onTap: () {},
+                  ),
+                  _MenuItem(
+                    icon: Icons.people_outline_rounded,
+                    title: 'Team',
                     isActive: false,
                     onTap: () {},
                   ),

@@ -9,4 +9,5 @@ abstract class Routes {
   static const KANBAN = '/projects/kanban';
   static const CALENDAR = '/calendar';
   static const REPORTS = '/reports';
+  static const FOCUS = '/focus';
 }

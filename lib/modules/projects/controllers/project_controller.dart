@@ -8,7 +8,7 @@ class ProjectController extends GetxController {
   final ProjectRepository _repository;
 
   ProjectController({ProjectRepository? repository})
-    : _repository = repository ?? ProjectRepository();
+    : _repository = repository ?? Get.find<ProjectRepository>();
 
   final RxList<ProjectModel> projects = <ProjectModel>[].obs;
   final RxList<String> clients = <String>[].obs;

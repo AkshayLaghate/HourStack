@@ -14,6 +14,8 @@ import '../../modules/calendar/bindings/calendar_binding.dart';
 import '../../modules/calendar/views/calendar_view.dart';
 import '../../modules/reports/bindings/reports_binding.dart';
 import '../../modules/reports/views/reports_view.dart';
+import '../../modules/timer/bindings/timer_binding.dart';
+import '../../modules/timer/views/focus_view.dart';
 
 part 'app_routes.dart';
 
@@ -60,6 +62,11 @@ class AppPages {
       name: Routes.REPORTS,
       page: () => const ReportsView(),
       binding: ReportsBinding(),
+    ),
+    GetPage(
+      name: Routes.FOCUS,
+      page: () => const FocusView(),
+      binding: TimerBinding(),
     ),
   ];
 }

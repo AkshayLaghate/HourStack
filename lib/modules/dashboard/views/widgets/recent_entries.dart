@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../controllers/dashboard_controller.dart';
 
-class RecentEntries extends StatelessWidget {
+class RecentEntries extends GetView<DashboardController> {
   const RecentEntries({super.key});
 
   @override
@@ -31,35 +34,65 @@ class RecentEntries extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _buildEntryItem(
-            icon: Icons.web_rounded,
-            title: 'Website Redesign',
-            subtitle: 'Homepage Layout',
-            category: 'Billable',
-            categoryColor: AppColors.success,
-            time: '2h 15m',
-          ),
-          const Divider(height: 1, color: AppColors.divider),
-          _buildEntryItem(
-            icon: Icons.brush_rounded,
-            title: 'Brand Identity',
-            subtitle: 'Logo Concepts',
-            category: 'Billable',
-            categoryColor: AppColors.success,
-            time: '1h 45m',
-          ),
-          const Divider(height: 1, color: AppColors.divider),
-          _buildEntryItem(
-            icon: Icons.email_rounded,
-            title: 'Email Correspondence',
-            subtitle: 'Client catch-up',
-            category: 'Non-billable',
-            categoryColor: AppColors.textHint,
-            time: '0h 30m',
-          ),
+          Obx(() {
+            if (controller.isLoading.value &&
+                controller.recentSessions.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (controller.recentSessions.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    'No recent entries found',
+                    style: AppTextStyles.bodyMedium,
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              children: controller.recentSessions.asMap().entries.map((entry) {
+                final session = entry.value;
+                final isLast =
+                    entry.key == controller.recentSessions.length - 1;
+                final project = controller.projectMap[session.projectId];
+                final isBillable = project?.isBillable ?? true;
+
+                return Column(
+                  children: [
+                    _buildEntryItem(
+                      icon: IconData(
+                        project?.iconCodePoint ?? 0xe232,
+                        fontFamily: 'MaterialIcons',
+                      ),
+                      title: project?.name ?? 'Unknown Project',
+                      subtitle: DateFormat(
+                        'MMM d, h:mm a',
+                      ).format(session.startTime),
+                      category: isBillable ? 'Billable' : 'Non-billable',
+                      categoryColor: isBillable
+                          ? AppColors.success
+                          : AppColors.textHint,
+                      time: _formatDuration(session.durationMinutes),
+                    ),
+                    if (!isLast)
+                      const Divider(height: 1, color: AppColors.divider),
+                  ],
+                );
+              }).toList(),
+            );
+          }),
         ],
       ),
     );
+  }
+
+  String _formatDuration(int minutes) {
+    final int h = minutes ~/ 60;
+    final int m = minutes % 60;
+    return '${h}h ${m}m';
   }
 
   Widget _buildEntryItem({
@@ -95,7 +128,7 @@ class RecentEntries extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: categoryColor.withOpacity(0.1),
+              color: categoryColor.withAlpha((0.1 * 255).toInt()),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
