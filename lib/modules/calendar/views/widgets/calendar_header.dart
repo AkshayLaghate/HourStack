@@ -16,13 +16,7 @@ class CalendarHeader extends GetView<CalendarController> {
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
-        children: [
-          _buildMonthPicker(),
-          const Spacer(),
-          _buildViewSwitcher(),
-          const SizedBox(width: 24),
-          _buildActionButtons(),
-        ],
+        children: [_buildMonthPicker(), const Spacer(), _buildViewSwitcher()],
       ),
     );
   }
@@ -30,6 +24,26 @@ class CalendarHeader extends GetView<CalendarController> {
   Widget _buildMonthPicker() {
     return Obx(() {
       final date = controller.focusedDay.value;
+      final viewType = controller.viewType.value;
+
+      String label;
+      if (viewType == 'Month') {
+        label = DateFormat('MMMM yyyy').format(date);
+      } else if (viewType == 'Week') {
+        final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
+        final endOfWeek = startOfWeek.add(const Duration(days: 6));
+
+        if (startOfWeek.month == endOfWeek.month) {
+          label =
+              '${DateFormat('MMM d').format(startOfWeek)} - ${DateFormat('d, yyyy').format(endOfWeek)}';
+        } else {
+          label =
+              '${DateFormat('MMM d').format(startOfWeek)} - ${DateFormat('MMM d, yyyy').format(endOfWeek)}';
+        }
+      } else {
+        label = DateFormat('MMMM d, yyyy').format(date);
+      }
+
       return Row(
         children: [
           IconButton(
@@ -37,11 +51,11 @@ class CalendarHeader extends GetView<CalendarController> {
               Icons.chevron_left,
               color: AppColors.textSecondary,
             ),
-            onPressed: controller.previousMonth,
+            onPressed: controller.previous,
           ),
           const SizedBox(width: 8),
           Text(
-            DateFormat('MMMM yyyy').format(date),
+            label,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -54,7 +68,7 @@ class CalendarHeader extends GetView<CalendarController> {
               Icons.chevron_right,
               color: AppColors.textSecondary,
             ),
-            onPressed: controller.nextMonth,
+            onPressed: controller.next,
           ),
         ],
       );
@@ -111,45 +125,5 @@ class CalendarHeader extends GetView<CalendarController> {
         ),
       );
     });
-  }
-
-  Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Container(
-          width: 300,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const TextField(
-            decoration: InputDecoration(
-              hintText: 'Search tasks...',
-              hintStyle: TextStyle(color: AppColors.textHint, fontSize: 14),
-              prefixIcon: Icon(
-                Icons.search,
-                color: AppColors.textHint,
-                size: 20,
-              ),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        const Icon(Icons.notifications_none, color: AppColors.textSecondary),
-        const SizedBox(width: 16),
-        const CircleAvatar(
-          radius: 16,
-          backgroundColor: Color(0xFFE2E8F0),
-          child: Icon(
-            Icons.person_outline,
-            size: 20,
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
   }
 }

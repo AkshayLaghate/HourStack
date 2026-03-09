@@ -79,7 +79,6 @@ class KanbanController extends GetxController {
     try {
       if (currentProject.value == null) return;
       await _repository.addTask(currentProject.value!.id, newTask);
-      Get.back();
       Get.snackbar('Success', 'Task added to Backlog');
     } catch (e) {
       Get.snackbar('Error', 'Failed to add task: $e');
@@ -98,6 +97,16 @@ class KanbanController extends GetxController {
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to update task status: $e');
+    }
+  }
+
+  Future<void> updateTask(TaskModel task) async {
+    try {
+      if (currentProject.value == null) return;
+      await _repository.updateTask(currentProject.value!.id, task);
+      Get.snackbar('Success', 'Task updated');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update task: $e');
     }
   }
 

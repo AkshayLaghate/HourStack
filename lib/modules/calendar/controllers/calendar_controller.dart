@@ -1,12 +1,15 @@
 import 'package:get/get.dart';
 import '../../../data/models/session_model.dart';
 import '../../../data/models/project_model.dart';
+import '../../../data/models/task_model.dart';
 import '../../../data/repositories/session_repository.dart';
 import '../../../data/repositories/project_repository.dart';
+import '../../../data/repositories/task_repository.dart';
 
 class CalendarController extends GetxController {
   final SessionRepository _sessionRepository = SessionRepository();
   final ProjectRepository _projectRepository = ProjectRepository();
+  final TaskRepository _taskRepository = TaskRepository();
 
   final Rx<DateTime> focusedDay = DateTime.now().obs;
   final Rx<DateTime?> selectedDay = Rx<DateTime?>(null);
@@ -19,12 +22,14 @@ class CalendarController extends GetxController {
   // Map of projectId to ProjectModel for quick lookup
   final RxMap<String, ProjectModel> projectsMap = <String, ProjectModel>{}.obs;
 
+  // Map of taskId to TaskModel for quick lookup
+  final RxMap<String, TaskModel> tasksMap = <String, TaskModel>{}.obs;
+
   final RxBool isLoading = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    selectedDay.value = focusedDay.value;
     _loadInitialData();
   }
 
@@ -36,11 +41,18 @@ class CalendarController extends GetxController {
 
   Future<void> _loadProjects() async {
     final projects = await _projectRepository.getProjectsStream().first;
-    final newMap = <String, ProjectModel>{};
+    final newProjectsMap = <String, ProjectModel>{};
     for (var project in projects) {
-      newMap[project.id] = project;
+      newProjectsMap[project.id] = project;
+
+      // Load tasks for each project
+      _taskRepository.getTasksStream(project.id).first.then((tasks) {
+        for (var task in tasks) {
+          tasksMap[task.id] = task;
+        }
+      });
     }
-    projectsMap.assignAll(newMap);
+    projectsMap.assignAll(newProjectsMap);
   }
 
   void onDaySelected(DateTime selected, DateTime focused) {
@@ -55,6 +67,13 @@ class CalendarController extends GetxController {
 
   void changeView(String type) {
     viewType.value = type;
+    // Potentially adjust focusedDay to the first day of the week or month
+    _loadCurrentViewData();
+  }
+
+  void _loadCurrentViewData() {
+    _loadMonthData(focusedDay.value);
+    // If we transition to week/day view and the month is different, _loadMonthData handles it.
   }
 
   void _loadMonthData(DateTime focused) {
@@ -98,21 +117,30 @@ class CalendarController extends GetxController {
     return total;
   }
 
-  void nextMonth() {
-    focusedDay.value = DateTime(
-      focusedDay.value.year,
-      focusedDay.value.month + 1,
-      1,
-    );
-    _loadMonthData(focusedDay.value);
+  void next() {
+    final current = focusedDay.value;
+    if (viewType.value == 'Month') {
+      focusedDay.value = DateTime(current.year, current.month + 1, 1);
+    } else if (viewType.value == 'Week') {
+      focusedDay.value = current.add(const Duration(days: 7));
+    } else {
+      focusedDay.value = current.add(const Duration(days: 1));
+    }
+    _loadCurrentViewData();
   }
 
-  void previousMonth() {
-    focusedDay.value = DateTime(
-      focusedDay.value.year,
-      focusedDay.value.month - 1,
-      1,
-    );
-    _loadMonthData(focusedDay.value);
+  void previous() {
+    final current = focusedDay.value;
+    if (viewType.value == 'Month') {
+      focusedDay.value = DateTime(current.year, current.month - 1, 1);
+    } else if (viewType.value == 'Week') {
+      focusedDay.value = current.subtract(const Duration(days: 7));
+    } else {
+      focusedDay.value = current.subtract(const Duration(days: 1));
+    }
+    _loadCurrentViewData();
   }
+
+  void nextMonth() => next();
+  void previousMonth() => previous();
 }

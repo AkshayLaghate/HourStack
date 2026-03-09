@@ -22,7 +22,12 @@ class CalendarView extends GetView<CalendarController> {
             child: Row(
               children: [
                 const Expanded(child: CalendarGrid()),
-                if (isDesktop) const DayDetailSidebar(),
+                Obx(() {
+                  if (isDesktop && controller.selectedDay.value != null) {
+                    return const DayDetailSidebar();
+                  }
+                  return const SizedBox.shrink();
+                }),
               ],
             ),
           ),

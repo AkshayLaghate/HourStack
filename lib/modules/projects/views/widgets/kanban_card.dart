@@ -42,7 +42,7 @@ class KanbanCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDragging ? 0.08 : 0.04),
+            color: Colors.black.withValues(alpha: isDragging ? 0.08 : 0.04),
             blurRadius: isDragging ? 15 : 10,
             offset: Offset(0, isDragging ? 8 : 4),
           ),
@@ -130,7 +130,7 @@ class KanbanCard extends StatelessWidget {
         ? 'COMPLETED'
         : task.priority.name.toUpperCase();
     Color bgColor = _getPriorityColor(task);
-    Color textColor = bgColor.withOpacity(0.8);
+    Color textColor = bgColor.withValues(alpha: 0.8);
 
     if (task.status == TaskStatus.done) {
       bgColor = const Color(0xFFE8F5E9);

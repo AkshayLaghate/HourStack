@@ -3,34 +3,47 @@ import 'package:get/get.dart';
 import '../../controllers/calendar_controller.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/utils/number_extensions.dart';
+import 'weekly_grid.dart';
+import 'daily_grid.dart';
 
 class CalendarGrid extends GetView<CalendarController> {
   const CalendarGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildDaysOfWeek(),
-        Expanded(
-          child: Obx(() {
-            final focusedDay = controller.focusedDay.value;
-            final days = _generateDaysForMonth(focusedDay);
-            return GridView.builder(
-              padding: EdgeInsets.zero,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                childAspectRatio: 1.0,
-              ),
-              itemCount: days.length,
-              itemBuilder: (context, index) {
-                return _buildDateCell(days[index]);
-              },
-            );
-          }),
-        ),
-      ],
-    );
+    return Obx(() {
+      final viewType = controller.viewType.value;
+
+      if (viewType == 'Week') {
+        return const WeeklyGrid();
+      } else if (viewType == 'Day') {
+        return const DailyGrid();
+      }
+
+      // Default: Month View
+      return Column(
+        children: [
+          _buildDaysOfWeek(),
+          Expanded(
+            child: Obx(() {
+              final focusedDay = controller.focusedDay.value;
+              final days = _generateDaysForMonth(focusedDay);
+              return GridView.builder(
+                padding: EdgeInsets.zero,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  childAspectRatio: 1.0,
+                ),
+                itemCount: days.length,
+                itemBuilder: (context, index) {
+                  return _buildDateCell(days[index]);
+                },
+              );
+            }),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildDaysOfWeek() {
@@ -94,7 +107,7 @@ class CalendarGrid extends GetView<CalendarController> {
               const Spacer(),
               if (totalHours > 0) ...[
                 Text(
-                  '${totalHours.toFormattedString(2)}h',
+                  totalHours.toDurationString(),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,

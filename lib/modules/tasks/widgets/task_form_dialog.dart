@@ -7,8 +7,9 @@ import 'package:hourstack/modules/kanban/controllers/kanban_controller.dart';
 import 'package:intl/intl.dart';
 
 class TaskFormDialog extends StatefulWidget {
+  final TaskModel? task;
   final TaskStatus? initialStatus;
-  const TaskFormDialog({super.key, this.initialStatus});
+  const TaskFormDialog({super.key, this.task, this.initialStatus});
 
   @override
   State<TaskFormDialog> createState() => _TaskFormDialogState();
@@ -26,7 +27,16 @@ class _TaskFormDialogState extends State<TaskFormDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedStatus = widget.initialStatus ?? TaskStatus.backlog;
+    if (widget.task != null) {
+      _titleCtrl.text = widget.task!.title;
+      _descCtrl.text = widget.task!.description;
+      _estCtrl.text = widget.task!.estimatedHours.toString();
+      _selectedPriority = widget.task!.priority;
+      _selectedStatus = widget.task!.status;
+      _selectedDueDate = widget.task!.dueDate;
+    } else {
+      _selectedStatus = widget.initialStatus ?? TaskStatus.backlog;
+    }
   }
 
   @override
@@ -75,14 +85,28 @@ class _TaskFormDialogState extends State<TaskFormDialog> {
     }
 
     final controller = Get.find<KanbanController>();
-    controller.addTask(
-      title,
-      _descCtrl.text.trim(),
-      double.tryParse(_estCtrl.text) ?? 0.0,
-      _selectedPriority,
-      status: _selectedStatus,
-      dueDate: _selectedDueDate,
-    );
+
+    if (widget.task != null) {
+      controller.updateTask(
+        widget.task!.copyWith(
+          title: title,
+          description: _descCtrl.text.trim(),
+          estimatedHours: double.tryParse(_estCtrl.text) ?? 0.0,
+          priority: _selectedPriority,
+          status: _selectedStatus,
+          dueDate: _selectedDueDate,
+        ),
+      );
+    } else {
+      controller.addTask(
+        title,
+        _descCtrl.text.trim(),
+        double.tryParse(_estCtrl.text) ?? 0.0,
+        _selectedPriority,
+        status: _selectedStatus,
+        dueDate: _selectedDueDate,
+      );
+    }
     Get.back();
   }
 
@@ -106,10 +130,15 @@ class _TaskFormDialogState extends State<TaskFormDialog> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Create Task', style: AppTextStyles.h2),
+                      Text(
+                        widget.task != null ? 'Edit Task' : 'Create Task',
+                        style: AppTextStyles.h2,
+                      ),
                       const SizedBox(height: 4),
                       Text(
-                        'Add a new task to this project board.',
+                        widget.task != null
+                            ? 'Update the details of this task.'
+                            : 'Add a new task to this project board.',
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -158,11 +187,12 @@ class _TaskFormDialogState extends State<TaskFormDialog> {
                         _buildLabel('Priority'),
                         const SizedBox(height: 8),
                         _buildDropdown<TaskPriority>(
-                          value: _selectedPriority,
+                          initialValue: _selectedPriority,
                           items: TaskPriority.values,
                           onChanged: (val) {
-                            if (val != null)
+                            if (val != null) {
                               setState(() => _selectedPriority = val);
+                            }
                           },
                           itemBuilder: (p) => Text(p.name.capitalizeFirst!),
                         ),
@@ -177,11 +207,12 @@ class _TaskFormDialogState extends State<TaskFormDialog> {
                         _buildLabel('Status'),
                         const SizedBox(height: 8),
                         _buildDropdown<TaskStatus>(
-                          value: _selectedStatus,
+                          initialValue: _selectedStatus,
                           items: TaskStatus.values,
                           onChanged: (val) {
-                            if (val != null)
+                            if (val != null) {
                               setState(() => _selectedStatus = val);
+                            }
                           },
                           itemBuilder: (s) => Text(s.name.capitalizeFirst!),
                         ),
@@ -272,9 +303,9 @@ class _TaskFormDialogState extends State<TaskFormDialog> {
                       elevation: 4,
                       shadowColor: AppColors.primary.withValues(alpha: 0.4),
                     ),
-                    child: const Text(
-                      'Create Task',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                    child: Text(
+                      widget.task != null ? 'Update Task' : 'Create Task',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
@@ -353,13 +384,13 @@ class _TaskFormDialogState extends State<TaskFormDialog> {
   }
 
   Widget _buildDropdown<T>({
-    required T value,
+    required T initialValue,
     required List<T> items,
     required void Function(T?) onChanged,
     required Widget Function(T) itemBuilder,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      value: initialValue,
       items: items
           .map(
             (item) => DropdownMenuItem(value: item, child: itemBuilder(item)),

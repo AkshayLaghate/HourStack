@@ -22,9 +22,9 @@ class ReportsView extends GetView<ReportsController> {
           children: [
             _buildHeader(),
             const SizedBox(height: 32),
-            _buildProjectSummaryCard(),
+            _buildTopStats(),
             const SizedBox(height: 32),
-            _buildBottomStats(),
+            _buildProjectSummaryCard(),
           ],
         );
       }),
@@ -230,12 +230,14 @@ class ReportsView extends GetView<ReportsController> {
                   children: [
                     _buildSummaryStat(
                       'Total Hours:',
-                      '${controller.totalHours.value.toFormattedString(2)}h',
+                      controller.totalHours.value.toDurationString(),
                     ),
                     const SizedBox(width: 24),
                     _buildSummaryStat(
                       'Total Revenue:',
-                      controller.totalRevenue.value.toCurrency(),
+                      controller.totalRevenue.value.toCurrency(
+                        symbol: controller.currencySymbol.value,
+                      ),
                     ),
                   ],
                 ),
@@ -360,9 +362,14 @@ class ReportsView extends GetView<ReportsController> {
             children: [
               _buildTableCell(entry.date),
               _buildTableCellWithDot(entry.project, Color(entry.color)),
-              _buildTableCell('${entry.hours.toFormattedString(2)}h'),
-              _buildTableCell('\$${entry.rate.toFormattedString(2)}'),
-              _buildTableCell(entry.revenue.toCurrency(), isBold: true),
+              _buildTableCell(entry.hours.toDurationString()),
+              _buildTableCell(
+                entry.rate.toCurrency(symbol: entry.currencySymbol),
+              ),
+              _buildTableCell(
+                entry.revenue.toCurrency(symbol: entry.currencySymbol),
+                isBold: true,
+              ),
             ],
           ),
         ),
@@ -484,17 +491,14 @@ class ReportsView extends GetView<ReportsController> {
     );
   }
 
-  Widget _buildBottomStats() {
+  Widget _buildTopStats() {
     return Obx(() {
-      if (controller.sessions.isEmpty) {
-        return const SizedBox.shrink();
-      }
       return Row(
         children: [
           Expanded(
             child: _buildStatCard(
-              'AVERAGE/DAY',
-              '${controller.avgDay.value.toFormattedString(2)}h',
+              'TOTAL HOURS',
+              controller.totalHours.value.toDurationString(),
               Icons.access_time_filled,
               const Color(0xFF6366F1).withValues(alpha: 0.1),
               const Color(0xFF6366F1),
@@ -503,9 +507,9 @@ class ReportsView extends GetView<ReportsController> {
           const SizedBox(width: 24),
           Expanded(
             child: _buildStatCard(
-              'BILLABLE %',
-              '${controller.billablePercent.value.toFormattedString(2)}%',
-              Icons.payments,
+              'BILLABLE HOURS',
+              controller.billableHours.value.toDurationString(),
+              Icons.verified_user,
               const Color(0xFF10B981).withValues(alpha: 0.1),
               const Color(0xFF10B981),
             ),
@@ -513,9 +517,21 @@ class ReportsView extends GetView<ReportsController> {
           const SizedBox(width: 24),
           Expanded(
             child: _buildStatCard(
-              'AVG RATE',
-              controller.avgRate.value.toCurrency(),
-              Icons.credit_score,
+              'TOTAL REVENUE',
+              controller.totalRevenue.value.toCurrency(
+                symbol: controller.currencySymbol.value,
+              ),
+              Icons.payments,
+              const Color(0xFFF59E0B).withValues(alpha: 0.1),
+              const Color(0xFFF59E0B),
+            ),
+          ),
+          const SizedBox(width: 24),
+          Expanded(
+            child: _buildStatCard(
+              'ACTIVE PROJECTS',
+              controller.activeProjectsCount.value.toString(),
+              Icons.folder_special,
               const Color(0xFF3B82F6).withValues(alpha: 0.1),
               const Color(0xFF3B82F6),
             ),

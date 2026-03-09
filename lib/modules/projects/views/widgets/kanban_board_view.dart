@@ -73,6 +73,7 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
                     onAddPressed: () => Get.dialog(
                       const TaskFormDialog(initialStatus: TaskStatus.backlog),
                     ),
+                    onTaskTap: (task) => Get.dialog(TaskFormDialog(task: task)),
                   ),
                   KanbanColumn(
                     title: 'In Progress',
@@ -84,6 +85,7 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
                         initialStatus: TaskStatus.inProgress,
                       ),
                     ),
+                    onTaskTap: (task) => Get.dialog(TaskFormDialog(task: task)),
                   ),
                   KanbanColumn(
                     title: 'Review',
@@ -92,6 +94,7 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
                     onAddPressed: () => Get.dialog(
                       const TaskFormDialog(initialStatus: TaskStatus.review),
                     ),
+                    onTaskTap: (task) => Get.dialog(TaskFormDialog(task: task)),
                   ),
                   KanbanColumn(
                     title: 'Done',
@@ -100,6 +103,7 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
                     onAddPressed: () => Get.dialog(
                       const TaskFormDialog(initialStatus: TaskStatus.done),
                     ),
+                    onTaskTap: (task) => Get.dialog(TaskFormDialog(task: task)),
                   ),
                 ],
               ),

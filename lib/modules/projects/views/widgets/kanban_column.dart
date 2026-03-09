@@ -29,8 +29,9 @@ class KanbanColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DragTarget<TaskModel>(
-      onWillAccept: (data) => data?.status != status,
-      onAccept: (task) {
+      onWillAcceptWithDetails: (details) => details.data.status != status,
+      onAcceptWithDetails: (details) {
+        final task = details.data;
         // Find the controller and update the status
         try {
           final controller = Get.find<KanbanController>();
@@ -47,12 +48,12 @@ class KanbanColumn extends StatelessWidget {
           margin: const EdgeInsets.only(right: 24),
           decoration: BoxDecoration(
             color: isHovering
-                ? AppColors.primary.withOpacity(0.05)
+                ? AppColors.primary.withValues(alpha: 0.05)
                 : const Color(0xFFF8F9FB),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: isHovering
-                  ? AppColors.primary.withOpacity(0.2)
+                  ? AppColors.primary.withValues(alpha: 0.2)
                   : Colors.transparent,
               width: 2,
             ),
@@ -86,7 +87,7 @@ class KanbanColumn extends StatelessWidget {
     bool isStatusActive = status == TaskStatus.inProgress;
     Color countBgColor = isStatusActive
         ? AppColors.primary
-        : AppColors.textHint.withOpacity(0.2);
+        : AppColors.textHint.withValues(alpha: 0.2);
     Color countTextColor = isStatusActive
         ? Colors.white
         : AppColors.textSecondary;

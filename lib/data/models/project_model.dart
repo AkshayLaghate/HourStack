@@ -31,6 +31,21 @@ class ProjectModel {
   final String? coverImageUrl;
   final List<double> historicalWeeklyHours;
 
+  String get currencySymbol {
+    switch (currency) {
+      case 'INR':
+        return '₹';
+      case 'USD':
+        return '\$';
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      default:
+        return currency;
+    }
+  }
+
   ProjectModel({
     required this.id,
     required this.name,

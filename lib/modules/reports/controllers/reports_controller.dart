@@ -28,7 +28,10 @@ class ReportsController extends GetxController {
 
   final RxList<ReportEntry> reportEntries = <ReportEntry>[].obs;
   final RxDouble totalHours = 0.0.obs;
+  final RxDouble billableHours = 0.0.obs;
   final RxDouble totalRevenue = 0.0.obs;
+  final RxString currencySymbol = '\$'.obs;
+  final RxInt activeProjectsCount = 0.obs;
   final RxDouble avgDay = 0.0.obs;
   final RxDouble billablePercent = 0.0.obs;
   final RxDouble avgRate = 0.0.obs;
@@ -158,10 +161,29 @@ class ReportsController extends GetxController {
         });
   }
 
+  String _getCurrencySymbol(String? code) {
+    if (code == null) return '\$';
+    switch (code) {
+      case 'INR':
+        return '₹';
+      case 'USD':
+        return '\$';
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      default:
+        return code;
+    }
+  }
+
   void _calculateStats() {
     if (sessions.isEmpty) {
       totalHours.value = 0.0;
+      billableHours.value = 0.0;
       totalRevenue.value = 0.0;
+      currencySymbol.value = '\$';
+      activeProjectsCount.value = 0;
       avgDay.value = 0.0;
       billablePercent.value = 0.0;
       avgRate.value = 0.0;
@@ -173,20 +195,35 @@ class ReportsController extends GetxController {
     double revenue = 0;
 
     final projectMap = {for (var p in projectController.projects) p.id: p};
+    final Set<String> activeProjectIds = {};
+    final Set<String> currencies = {};
 
     for (var session in sessions) {
       final project = projectMap[session.projectId];
       final double hours = session.durationMinutes / 60.0;
       totalMinutes += session.durationMinutes;
 
-      if (project != null && project.isBillable) {
-        billableMinutes += session.durationMinutes;
-        revenue += hours * project.hourlyRate;
+      if (project != null) {
+        activeProjectIds.add(project.id);
+        if (project.isBillable) {
+          billableMinutes += session.durationMinutes;
+          revenue += hours * project.hourlyRate;
+          currencies.add(project.currency);
+        }
       }
     }
 
     totalHours.value = totalMinutes / 60;
+    billableHours.value = billableMinutes / 60;
     totalRevenue.value = revenue;
+    activeProjectsCount.value = activeProjectIds.length;
+
+    // Set common currency symbol if all billable projects share the same currency
+    if (currencies.length == 1) {
+      currencySymbol.value = _getCurrencySymbol(currencies.first);
+    } else {
+      currencySymbol.value = '\$'; // Default to $ if multiple or none
+    }
 
     int days = endDate.value.difference(startDate.value).inDays + 1;
     avgDay.value = totalHours.value / (days > 0 ? days : 1);
@@ -211,6 +248,7 @@ class ReportsController extends GetxController {
         rate: rate,
         revenue: hours * rate,
         color: project?.colorValue ?? 0xFF64748B,
+        currencySymbol: _getCurrencySymbol(project?.currency),
       );
     }).toList();
 
@@ -325,6 +363,7 @@ class ReportEntry {
   final double rate;
   final double revenue;
   final int color;
+  final String currencySymbol;
 
   ReportEntry({
     required this.date,
@@ -333,5 +372,6 @@ class ReportEntry {
     required this.rate,
     required this.revenue,
     required this.color,
+    required this.currencySymbol,
   });
 }

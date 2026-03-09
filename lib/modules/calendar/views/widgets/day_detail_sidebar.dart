@@ -18,8 +18,7 @@ class DayDetailSidebar extends GetView<CalendarController> {
         border: Border(left: BorderSide(color: AppColors.border)),
       ),
       child: Obx(() {
-        final selectedDay =
-            controller.selectedDay.value ?? controller.focusedDay.value;
+        final selectedDay = controller.selectedDay.value!;
         final sessions = controller.getSessionsForDay(selectedDay);
         final totalHours = controller.getTotalHoursForDay(selectedDay);
         final totalRevenue = controller.getTotalRevenueForDay(selectedDay);
