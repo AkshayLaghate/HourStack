@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../controllers/dashboard_controller.dart';
+import '../../../../app/widgets/empty_state_widget.dart';
 
 class RecentEntries extends GetView<DashboardController> {
   const RecentEntries({super.key});
@@ -41,14 +42,11 @@ class RecentEntries extends GetView<DashboardController> {
             }
 
             if (controller.recentSessions.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
-                child: Center(
-                  child: Text(
-                    'No recent entries found',
-                    style: AppTextStyles.bodyMedium,
-                  ),
-                ),
+              return const EmptyStateWidget(
+                isCompact: true,
+                icon: Icons.history_rounded,
+                title: 'No Recent Activity',
+                description: 'You haven\'t tracked any time recently.',
               );
             }
 

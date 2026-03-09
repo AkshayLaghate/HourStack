@@ -22,6 +22,12 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
+  static const TextStyle h4 = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textPrimary,
+  );
+
   static const TextStyle bodyMedium = TextStyle(
     fontSize: 14,
     color: AppColors.textPrimary,

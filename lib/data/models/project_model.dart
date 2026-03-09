@@ -29,6 +29,7 @@ class ProjectModel {
   final double milestoneProgress;
   final DateTime? deadline;
   final String? coverImageUrl;
+  final List<double> historicalWeeklyHours;
 
   ProjectModel({
     required this.id,
@@ -56,6 +57,7 @@ class ProjectModel {
     this.milestoneProgress = 0.0,
     this.deadline,
     this.coverImageUrl,
+    this.historicalWeeklyHours = const [0.0, 0.0, 0.0, 0.0],
   });
 
   factory ProjectModel.fromMap(Map<String, dynamic> map, String documentId) {
@@ -85,6 +87,11 @@ class ProjectModel {
       milestoneProgress: (map['milestoneProgress'] ?? 0.0).toDouble(),
       deadline: (map['deadline'] as Timestamp?)?.toDate(),
       coverImageUrl: map['coverImageUrl'],
+      historicalWeeklyHours: List<double>.from(
+        (map['historicalWeeklyHours'] ?? [0.0, 0.0, 0.0, 0.0]).map(
+          (e) => e.toDouble(),
+        ),
+      ),
     );
   }
 
@@ -114,6 +121,17 @@ class ProjectModel {
       'milestoneProgress': milestoneProgress,
       'deadline': deadline != null ? Timestamp.fromDate(deadline!) : null,
       'coverImageUrl': coverImageUrl,
+      'historicalWeeklyHours': historicalWeeklyHours,
     };
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProjectModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

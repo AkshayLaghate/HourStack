@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/kanban_controller.dart';
 import '../../../data/models/task_model.dart';
+import '../../tasks/widgets/task_form_dialog.dart';
 
 class KanbanView extends GetView<KanbanController> {
   const KanbanView({super.key});
@@ -31,7 +32,7 @@ class KanbanView extends GetView<KanbanController> {
                 IconButton(
                   icon: const Icon(Icons.add),
                   tooltip: 'Add Task',
-                  onPressed: () => _showAddTaskDialog(context),
+                  onPressed: () => Get.dialog(const TaskFormDialog()),
                 ),
               ],
             ),
@@ -76,9 +77,22 @@ class KanbanView extends GetView<KanbanController> {
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Text(
-              '$title (${controller.getTasksForStatus(status).length})',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$title (${controller.getTasksForStatus(status).length})',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add, size: 20),
+                  onPressed: () =>
+                      Get.dialog(TaskFormDialog(initialStatus: status)),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -196,79 +210,6 @@ class KanbanView extends GetView<KanbanController> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showAddTaskDialog(BuildContext context) {
-    final titleCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
-    final estCtrl = TextEditingController();
-    TaskPriority selectedPriority = TaskPriority.medium;
-
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Add Task'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: titleCtrl,
-                    decoration: const InputDecoration(labelText: 'Title'),
-                  ),
-                  TextField(
-                    controller: descCtrl,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                  ),
-                  TextField(
-                    controller: estCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Estimated Hours',
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<TaskPriority>(
-                    value: selectedPriority,
-                    decoration: const InputDecoration(labelText: 'Priority'),
-                    items: TaskPriority.values
-                        .map(
-                          (p) => DropdownMenuItem(
-                            value: p,
-                            child: Text(p.name.capitalizeFirst!),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (val) {
-                      if (val != null) setState(() => selectedPriority = val);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              if (titleCtrl.text.isNotEmpty) {
-                controller.addTask(
-                  titleCtrl.text.trim(),
-                  descCtrl.text.trim(),
-                  double.tryParse(estCtrl.text) ?? 0.0,
-                  selectedPriority,
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
       ),
     );
   }

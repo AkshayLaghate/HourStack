@@ -61,8 +61,10 @@ class KanbanController extends GetxController {
     String title,
     String description,
     double estimatedHours,
-    TaskPriority priority,
-  ) async {
+    TaskPriority priority, {
+    TaskStatus? status,
+    DateTime? dueDate,
+  }) async {
     final newTask = TaskModel(
       id: '',
       title: title,
@@ -71,7 +73,8 @@ class KanbanController extends GetxController {
       priority: priority,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      status: TaskStatus.backlog,
+      status: status ?? TaskStatus.backlog,
+      dueDate: dueDate,
     );
     try {
       if (currentProject.value == null) return;

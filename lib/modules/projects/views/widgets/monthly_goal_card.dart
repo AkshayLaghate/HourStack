@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/utils/constants.dart';
+import '../../../../app/utils/number_extensions.dart';
 
 class MonthlyGoalCard extends StatelessWidget {
   final double totalEarning;
@@ -46,7 +47,7 @@ class MonthlyGoalCard extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '${AppConstants.defaultCurrencySymbol}${_formatCurrency(totalEarning)}',
+                      '${AppConstants.defaultCurrencySymbol}${totalEarning.toThousandSeparator(2)}',
                       style: AppTextStyles.h1.copyWith(fontSize: 40),
                     ),
                     const SizedBox(width: 12),
@@ -81,7 +82,7 @@ class MonthlyGoalCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'You are ${AppConstants.defaultCurrencySymbol}${_formatCurrency(remaining)} away from your monthly target. Keep it up!',
+                  'You are ${AppConstants.defaultCurrencySymbol}${remaining.toThousandSeparator(2)} away from your monthly target. Keep it up!',
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -92,14 +93,5 @@ class MonthlyGoalCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _formatCurrency(double amount) {
-    return amount
-        .toStringAsFixed(0)
-        .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
   }
 }

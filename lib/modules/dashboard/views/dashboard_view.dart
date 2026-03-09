@@ -11,6 +11,7 @@ import 'widgets/recent_entries.dart';
 import 'widgets/timer_card.dart';
 import 'widgets/budget_status.dart';
 import 'widgets/team_list.dart';
+import '../../../app/utils/number_extensions.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -204,8 +205,9 @@ class DashboardView extends GetView<DashboardController> {
         ),
         StatCard(
           title: 'Period Revenue',
-          value:
-              '${AppConstants.defaultCurrencySymbol}${controller.periodTotalRevenue.value.toStringAsFixed(0)}',
+          value: controller.periodTotalRevenue.value.toCurrency(
+            symbol: AppConstants.defaultCurrencySymbol,
+          ),
           trend: '+12%',
           isPositive: true,
           icon: Icons.attach_money_rounded,

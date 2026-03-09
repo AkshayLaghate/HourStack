@@ -40,6 +40,22 @@ class SessionRepository {
         });
   }
 
+  Stream<List<SessionModel>> getSessionsForRangeStream(
+    DateTime start,
+    DateTime end,
+  ) {
+    return _getSessionsCollection()
+        .where('startTime', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+        .where('startTime', isLessThanOrEqualTo: Timestamp.fromDate(end))
+        .orderBy('startTime', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => SessionModel.fromMap(doc.data(), doc.id))
+              .toList();
+        });
+  }
+
   Stream<List<SessionModel>> getSessionsForMonthStream(String monthKey) {
     return _getSessionsCollection()
         .where('monthKey', isEqualTo: monthKey)

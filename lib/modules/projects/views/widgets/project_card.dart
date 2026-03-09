@@ -3,6 +3,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../data/models/project_model.dart';
 import '../../../../app/utils/constants.dart';
+import '../../../../app/utils/number_extensions.dart';
 
 class ProjectCard extends StatelessWidget {
   final ProjectModel project;
@@ -70,7 +71,7 @@ class ProjectCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Revenue: $currencySymbol${_formatCurrency(revenue)}',
+              'Revenue: ${revenue.toCurrency(symbol: currencySymbol)}',
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -129,14 +130,5 @@ class ProjectCard extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _formatCurrency(double amount) {
-    return amount
-        .toStringAsFixed(0)
-        .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
   }
 }

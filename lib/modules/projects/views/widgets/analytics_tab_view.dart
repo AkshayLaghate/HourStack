@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../data/models/project_model.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../app/widgets/empty_state_widget.dart';
 import 'summary_card.dart';
 
 class AnalyticsTabView extends StatelessWidget {
@@ -55,7 +56,7 @@ class AnalyticsTabView extends StatelessWidget {
             Expanded(
               child: SummaryCard(
                 title: 'Revenue Efficiency',
-                value: '${weeklyEfficiency}%',
+                value: '$weeklyEfficiency%',
                 subtitle: 'vs Weekly Goal',
                 icon: Icons.trending_up_rounded,
                 iconColor: AppColors.primary,
@@ -101,7 +102,7 @@ class AnalyticsTabView extends StatelessWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -128,114 +129,126 @@ class AnalyticsTabView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 48),
-          SizedBox(
-            height: 300,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: (project.weeklyGoalHours * 1.2).clamp(20, 100),
-                barTouchData: BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.primary,
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      return BarTooltipItem(
-                        '${rod.toY} hrs',
-                        const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  show: true,
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        const style = TextStyle(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
-                        );
-                        String text;
-                        switch (value.toInt()) {
-                          case 0:
-                            text = 'Week 1';
-                            break;
-                          case 1:
-                            text = 'Week 2';
-                            break;
-                          case 2:
-                            text = 'Last Week';
-                            break;
-                          case 3:
-                            text = 'This Week';
-                            break;
-                          default:
-                            text = '';
-                            break;
-                        }
-                        return SideTitleWidget(
-                          meta: meta,
-                          space: 10,
-                          child: Text(text, style: style),
-                        );
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, meta) {
-                        return SideTitleWidget(
-                          meta: meta,
-                          child: Text(
-                            '${value.toInt()}h',
-                            style: const TextStyle(
-                              color: AppColors.textHint,
-                              fontSize: 10,
-                            ),
+          if (project.historicalWeeklyHours.every((h) => h == 0))
+            const SizedBox(
+              height: 300,
+              child: EmptyStateWidget(
+                isCompact: true,
+                icon: Icons.bar_chart_rounded,
+                title: 'No Weekly Activity',
+                description:
+                    'Weekly activity data will appear here once you start tracking time for this project.',
+              ),
+            )
+          else
+            SizedBox(
+              height: 300,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY:
+                      ([
+                                ...project.historicalWeeklyHours,
+                                project.weeklyGoalHours,
+                              ].reduce((a, b) => a > b ? a : b) *
+                              1.2)
+                          .clamp(20, 1000),
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => AppColors.primary,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        return BarTooltipItem(
+                          '${rod.toY.toStringAsFixed(1)} hrs',
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         );
                       },
                     ),
                   ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          const style = TextStyle(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                          );
+                          String text;
+                          switch (value.toInt()) {
+                            case 0:
+                              text = 'Week 1';
+                              break;
+                            case 1:
+                              text = 'Week 2';
+                              break;
+                            case 2:
+                              text = 'Last Week';
+                              break;
+                            case 3:
+                              text = 'This Week';
+                              break;
+                            default:
+                              text = '';
+                              break;
+                          }
+                          return SideTitleWidget(
+                            meta: meta,
+                            space: 10,
+                            child: Text(text, style: style),
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return SideTitleWidget(
+                            meta: meta,
+                            child: Text(
+                              '${value.toInt()}h',
+                              style: const TextStyle(
+                                color: AppColors.textHint,
+                                fontSize: 10,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: AppColors.divider.withValues(alpha: 0.5),
+                      strokeWidth: 1,
+                    ),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  barGroups: List.generate(
+                    project.historicalWeeklyHours.length,
+                    (index) => _makeGroupData(
+                      index,
+                      project.historicalWeeklyHours[index],
+                      project.weeklyGoalHours,
+                    ),
                   ),
                 ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: AppColors.divider.withOpacity(0.5),
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                barGroups: [
-                  _makeGroupData(0, 28.5, project.weeklyGoalHours),
-                  _makeGroupData(1, 42.0, project.weeklyGoalHours),
-                  _makeGroupData(
-                    2,
-                    project.lastWeekHours,
-                    project.weeklyGoalHours,
-                  ),
-                  _makeGroupData(
-                    3,
-                    project.thisWeekHours,
-                    project.weeklyGoalHours,
-                  ),
-                ],
               ),
             ),
-          ),
         ],
       ),
     );
@@ -249,7 +262,7 @@ class AnalyticsTabView extends StatelessWidget {
           toY: y,
           color: y >= goal
               ? AppColors.primary
-              : AppColors.primary.withOpacity(0.6),
+              : AppColors.primary.withValues(alpha: 0.6),
           width: 32,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
           backDrawRodData: BackgroundBarChartRodData(
@@ -267,7 +280,7 @@ class AnalyticsTabView extends StatelessWidget {
       children: [
         _buildLegendItem('Tracked', AppColors.primary),
         const SizedBox(width: 16),
-        _buildLegendItem('Goal', AppColors.textHint.withOpacity(0.2)),
+        _buildLegendItem('Goal', AppColors.textHint.withValues(alpha: 0.2)),
       ],
     );
   }

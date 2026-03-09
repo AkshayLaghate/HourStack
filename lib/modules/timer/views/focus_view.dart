@@ -6,6 +6,7 @@ import '../../../data/models/task_model.dart';
 import '../../projects/controllers/project_controller.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../controllers/timer_controller.dart';
+import '../../../app/utils/number_extensions.dart';
 
 class FocusView extends StatelessWidget {
   const FocusView({super.key});
@@ -274,7 +275,7 @@ class FocusView extends StatelessWidget {
                   Expanded(
                     child: _buildStatCard(
                       'Today\'s Total Hours',
-                      '${dashboardController.periodTotalHours.value} hrs',
+                      '${dashboardController.periodTotalHours.value.toFormattedString(2)} hrs',
                       '+1.2%',
                       AppColors.successLight,
                       AppColors.success,
@@ -285,7 +286,7 @@ class FocusView extends StatelessWidget {
                   Expanded(
                     child: _buildStatCard(
                       'Today\'s Revenue',
-                      '\$${dashboardController.periodTotalRevenue.value}',
+                      dashboardController.periodTotalRevenue.value.toCurrency(),
                       '+15%',
                       AppColors.infoLight,
                       AppColors.info,

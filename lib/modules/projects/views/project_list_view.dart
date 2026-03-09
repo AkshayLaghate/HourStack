@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/project_controller.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../app/widgets/empty_state_widget.dart';
 
 import 'widgets/project_card.dart';
 import 'widgets/new_project_card.dart';
@@ -31,6 +32,21 @@ class ProjectListView extends GetView<ProjectController> {
                   if (controller.isLoading.value) {
                     return const Center(child: CircularProgressIndicator());
                   }
+                  if (controller.projects.isEmpty) {
+                    return Column(
+                      children: [
+                        EmptyStateWidget(
+                          icon: Icons.folder_open_rounded,
+                          title: 'No Projects Yet',
+                          description:
+                              'Create your first project to start tracking time and managing your freelance work.',
+                          actionLabel: 'Add Project',
+                          onActionPressed: () => _showAddProjectDialog(context),
+                        ),
+                      ],
+                    );
+                  }
+
                   return GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -59,6 +75,9 @@ class ProjectListView extends GetView<ProjectController> {
                 }),
                 const SizedBox(height: 48),
                 Obx(() {
+                  if (controller.projects.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
                   double totalEarnings = 0;
                   for (var p in controller.projects) {
                     totalEarnings += p.monthlyHours * p.hourlyRate;

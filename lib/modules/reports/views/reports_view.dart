@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/reports_controller.dart';
+import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../../app/utils/number_extensions.dart';
+import '../../../app/widgets/empty_state_widget.dart';
 
 class ReportsView extends GetView<ReportsController> {
   const ReportsView({super.key});
@@ -55,51 +58,139 @@ class ReportsView extends GetView<ReportsController> {
         ),
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFE2E8F0),
-                ), // Custom Slate 200
+            _buildProjectDropdown(),
+            const SizedBox(width: 12),
+            _buildDateRangeSelector(),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProjectDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Obx(() {
+        final projects = controller.projectController.projects;
+        return DropdownButtonHideUnderline(
+          child: DropdownButton<String?>(
+            value: controller.selectedProject.value?.id,
+            hint: const Text('All Projects', style: TextStyle(fontSize: 14)),
+            icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+            onChanged: (String? id) {
+              final project = id == null
+                  ? null
+                  : projects.firstWhere((p) => p.id == id);
+              controller.onProjectChanged(project);
+            },
+            items: [
+              const DropdownMenuItem<String?>(
+                value: null,
+                child: Text('All Projects', style: TextStyle(fontSize: 14)),
               ),
-              child: Row(
-                children: [
-                  Text(
-                    'October 2023',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF334155), // Custom Slate 700
-                    ),
+              ...projects.map(
+                (p) => DropdownMenuItem<String?>(
+                  value: p.id,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Color(p.colorValue),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(p.name, style: const TextStyle(fontSize: 14)),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 20,
-                    color: const Color(0xFF64748B), // Custom Slate 500
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildDateRangeSelector() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Obx(
+            () => DropdownButtonHideUnderline(
+              child: DropdownButton<dynamic>(
+                // Use dynamic or DateRangeType
+                value: controller.rangeType.value,
+                onChanged: (value) {
+                  if (value != null) controller.setRange(value);
+                },
+                items: const [
+                  DropdownMenuItem(
+                    value: DateRangeType.day,
+                    child: Text('Daily', style: TextStyle(fontSize: 14)),
+                  ),
+                  DropdownMenuItem(
+                    value: DateRangeType.week,
+                    child: Text('Weekly', style: TextStyle(fontSize: 14)),
+                  ),
+                  DropdownMenuItem(
+                    value: DateRangeType.month,
+                    child: Text('Monthly', style: TextStyle(fontSize: 14)),
+                  ),
+                  DropdownMenuItem(
+                    value: DateRangeType.custom,
+                    child: Text('Custom', style: TextStyle(fontSize: 14)),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFE2E8F0),
-                ), // Custom Slate 200
-              ),
-              child: const Icon(
-                Icons.filter_list,
-                size: 20,
-                color: Color(0xFF334155), // Custom Slate 700
-              ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        InkWell(
+          onTap: () => controller.selectDateRange(Get.context!),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
-          ],
+            child: Row(
+              children: [
+                Obx(
+                  () => Text(
+                    controller.rangeLabel,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF334155),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.calendar_today,
+                  size: 16,
+                  color: Color(0xFF64748B),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -113,7 +204,7 @@ class ReportsView extends GetView<ReportsController> {
         border: Border.all(color: const Color(0xFFF1F5F9)), // Custom Slate 100
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -139,12 +230,12 @@ class ReportsView extends GetView<ReportsController> {
                   children: [
                     _buildSummaryStat(
                       'Total Hours:',
-                      '${controller.totalHours.value}h',
+                      '${controller.totalHours.value.toFormattedString(2)}h',
                     ),
                     const SizedBox(width: 24),
                     _buildSummaryStat(
                       'Total Revenue:',
-                      '\$${controller.totalRevenue.value.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                      controller.totalRevenue.value.toCurrency(),
                     ),
                   ],
                 ),
@@ -234,6 +325,15 @@ class ReportsView extends GetView<ReportsController> {
   }
 
   Widget _buildTable() {
+    if (controller.reportEntries.isEmpty) {
+      return const EmptyStateWidget(
+        icon: Icons.analytics_outlined,
+        title: 'No Data Found',
+        description:
+            'There are no time entries for the selected project and date range.',
+      );
+    }
+
     return Table(
       columnWidths: const {
         0: FlexColumnWidth(1.2),
@@ -255,21 +355,17 @@ class ReportsView extends GetView<ReportsController> {
             _buildTableHeader('REVENUE'),
           ],
         ),
-        if (controller.reportEntries.isNotEmpty)
-          ...controller.reportEntries.map(
-            (entry) => TableRow(
-              children: [
-                _buildTableCell(entry.date),
-                _buildTableCellWithDot(entry.project, Color(entry.color)),
-                _buildTableCell('${entry.hours}h'),
-                _buildTableCell('\$${entry.rate.toStringAsFixed(2)}'),
-                _buildTableCell(
-                  '\$${entry.revenue.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                  isBold: true,
-                ),
-              ],
-            ),
+        ...controller.reportEntries.map(
+          (entry) => TableRow(
+            children: [
+              _buildTableCell(entry.date),
+              _buildTableCellWithDot(entry.project, Color(entry.color)),
+              _buildTableCell('${entry.hours.toFormattedString(2)}h'),
+              _buildTableCell('\$${entry.rate.toFormattedString(2)}'),
+              _buildTableCell(entry.revenue.toCurrency(), isBold: true),
+            ],
           ),
+        ),
       ],
     );
   }
@@ -346,7 +442,7 @@ class ReportsView extends GetView<ReportsController> {
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: const Color(0xFF6366F1).withOpacity(0.3),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -389,39 +485,44 @@ class ReportsView extends GetView<ReportsController> {
   }
 
   Widget _buildBottomStats() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            'AVERAGE/DAY',
-            '${controller.avgDay.value}h',
-            Icons.access_time_filled,
-            const Color(0xFF6366F1).withOpacity(0.1),
-            const Color(0xFF6366F1),
+    return Obx(() {
+      if (controller.sessions.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      return Row(
+        children: [
+          Expanded(
+            child: _buildStatCard(
+              'AVERAGE/DAY',
+              '${controller.avgDay.value.toFormattedString(2)}h',
+              Icons.access_time_filled,
+              const Color(0xFF6366F1).withValues(alpha: 0.1),
+              const Color(0xFF6366F1),
+            ),
           ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: _buildStatCard(
-            'BILLABLE %',
-            '${controller.billablePercent.value}%',
-            Icons.payments,
-            const Color(0xFF10B981).withOpacity(0.1),
-            const Color(0xFF10B981),
+          const SizedBox(width: 24),
+          Expanded(
+            child: _buildStatCard(
+              'BILLABLE %',
+              '${controller.billablePercent.value.toFormattedString(2)}%',
+              Icons.payments,
+              const Color(0xFF10B981).withValues(alpha: 0.1),
+              const Color(0xFF10B981),
+            ),
           ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: _buildStatCard(
-            'AVG RATE',
-            '\$${controller.avgRate.value.toStringAsFixed(2)}',
-            Icons.credit_score,
-            const Color(0xFF3B82F6).withOpacity(0.1),
-            const Color(0xFF3B82F6),
+          const SizedBox(width: 24),
+          Expanded(
+            child: _buildStatCard(
+              'AVG RATE',
+              controller.avgRate.value.toCurrency(),
+              Icons.credit_score,
+              const Color(0xFF3B82F6).withValues(alpha: 0.1),
+              const Color(0xFF3B82F6),
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildStatCard(

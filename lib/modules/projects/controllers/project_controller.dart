@@ -1,15 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/models/project_model.dart';
 import '../../../data/repositories/project_repository.dart';
+import '../../../data/repositories/session_repository.dart';
 import '../../../app/utils/constants.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProjectController extends GetxController {
   final ProjectRepository _repository;
+  final SessionRepository _sessionRepository;
 
-  ProjectController({ProjectRepository? repository})
-    : _repository = repository ?? Get.find<ProjectRepository>();
+  ProjectController({
+    ProjectRepository? repository,
+    SessionRepository? sessionRepository,
+  }) : _repository = repository ?? Get.find<ProjectRepository>(),
+       _sessionRepository = sessionRepository ?? Get.find<SessionRepository>();
 
   final RxList<ProjectModel> projects = <ProjectModel>[].obs;
   final RxList<String> clients = <String>[].obs;
@@ -20,6 +24,85 @@ class ProjectController extends GetxController {
 
   void selectProject(ProjectModel? project) {
     selectedProject.value = project;
+    if (project != null) {
+      _updateProjectHistoricalStats(project);
+    }
+  }
+
+  Future<void> _updateProjectHistoricalStats(ProjectModel project) async {
+    final now = DateTime.now();
+    final List<double> weeklyHours = [0.0, 0.0, 0.0, 0.0];
+
+    // Calculate dates for the last 4 weeks
+    for (int i = 0; i < 4; i++) {
+      // i=0: This Week, i=1: Last Week, i=2: Week 2, i=3: Week 1 (from the UI perspective)
+      // Actually the UI shows: Week 1, Week 2, Last Week, This Week
+      // indices in my list: [3, 2, 1, 0]
+
+      final weekStart = now.subtract(Duration(days: now.weekday - 1 + (i * 7)));
+      final start = DateTime(weekStart.year, weekStart.month, weekStart.day);
+      final end = start.add(
+        const Duration(days: 6, hours: 23, minutes: 59, seconds: 59),
+      );
+
+      try {
+        final sessions = await _sessionRepository
+            .getSessionsForRangeStream(start, end)
+            .first;
+        final projectSessions = sessions.where(
+          (s) => s.projectId == project.id,
+        );
+
+        double totalMinutes = 0;
+        for (var session in projectSessions) {
+          totalMinutes += session.durationMinutes;
+        }
+
+        // Reverse indexing to match the UI expectation: [Week 1, Week 2, Last Week, This Week]
+        weeklyHours[3 - i] = totalMinutes / 60.0;
+      } catch (e) {
+        // Log error or handle gracefully
+      }
+    }
+
+    // Update the project with calculated stats
+    final updatedProject = ProjectModel(
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      clientName: project.clientName,
+      hourlyRate: project.hourlyRate,
+      currency: project.currency,
+      createdAt: project.createdAt,
+      isActive: project.isActive,
+      monthlyHours: project.monthlyHours,
+      monthlyProgress: project.monthlyProgress,
+      colorValue: project.colorValue,
+      iconCodePoint: project.iconCodePoint,
+      paymentType: project.paymentType,
+      fixedPrice: project.fixedPrice,
+      estimatedBudget: project.estimatedBudget,
+      isBillable: project.isBillable,
+      isBudgetAlertEnabled: project.isBudgetAlertEnabled,
+      totalHours: project.totalHours,
+      totalRevenue: project.totalRevenue,
+      weeklyGoalHours: project.weeklyGoalHours,
+      thisWeekHours: weeklyHours[3],
+      lastWeekHours: weeklyHours[2],
+      milestoneProgress: project.milestoneProgress,
+      deadline: project.deadline,
+      coverImageUrl: project.coverImageUrl,
+      historicalWeeklyHours: weeklyHours,
+    );
+
+    // Update in the list to trigger UI update
+    int index = projects.indexWhere((p) => p.id == project.id);
+    if (index != -1) {
+      projects[index] = updatedProject;
+      if (selectedProject.value?.id == project.id) {
+        selectedProject.value = updatedProject;
+      }
+    }
   }
 
   @override
@@ -27,8 +110,7 @@ class ProjectController extends GetxController {
     super.onInit();
     projects.bindStream(_repository.getProjectsStream());
 
-    // Initialize mock clients if empty
-    clients.addAll(['Acme Corp', 'Global Tech', 'Starlight Inc']);
+    // Initialize clients from projects if any
 
     // Listen for projects changes to sync clients
     ever(projects, (List<ProjectModel> projectList) {
@@ -40,10 +122,6 @@ class ProjectController extends GetxController {
             !clients.contains(project.clientName)) {
           clients.add(project.clientName);
         }
-      }
-
-      if (projectList.isEmpty) {
-        seedMockProjects();
       }
     });
   }
@@ -178,66 +256,6 @@ class ProjectController extends GetxController {
   void addClient(String name) {
     if (name.isNotEmpty && !clients.contains(name)) {
       clients.add(name);
-    }
-  }
-
-  void seedMockProjects() {
-    final mockProjects = [
-      ProjectModel(
-        id: '1',
-        name: 'E-commerce Redesign',
-        clientName: 'Acme Corp',
-        hourlyRate: 85.0,
-        totalHours: 142.5,
-        totalRevenue: 12112.50,
-        weeklyGoalHours: 45.0,
-        thisWeekHours: 38.5,
-        lastWeekHours: 32.2,
-        milestoneProgress: 0.95,
-        monthlyHours: 120.0,
-        monthlyProgress: 0.8,
-        colorValue: 0xFF3B82F6,
-        iconCodePoint: Icons.language_rounded.codePoint,
-        createdAt: DateTime.now(),
-      ),
-      ProjectModel(
-        id: '2',
-        name: 'Mobile App Dev',
-        clientName: 'Global Tech',
-        hourlyRate: 110.0,
-        totalHours: 95.0,
-        totalRevenue: 10450.00,
-        weeklyGoalHours: 40.0,
-        thisWeekHours: 25.0,
-        lastWeekHours: 38.0,
-        milestoneProgress: 0.75,
-        monthlyHours: 85.0,
-        monthlyProgress: 0.65,
-        colorValue: 0xFF818CF8,
-        iconCodePoint: Icons.smartphone_rounded.codePoint,
-        createdAt: DateTime.now(),
-      ),
-      ProjectModel(
-        id: '3',
-        name: 'Brand Identity',
-        clientName: 'Starlight Inc',
-        hourlyRate: 95.0,
-        totalHours: 40.0,
-        totalRevenue: 3800.00,
-        weeklyGoalHours: 20.0,
-        thisWeekHours: 12.0,
-        lastWeekHours: 15.0,
-        milestoneProgress: 0.45,
-        monthlyHours: 40.0,
-        monthlyProgress: 0.3,
-        colorValue: 0xFFF59E0B,
-        iconCodePoint: Icons.palette_rounded.codePoint,
-        createdAt: DateTime.now(),
-      ),
-    ];
-
-    for (var p in mockProjects) {
-      _repository.addProject(p);
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../controllers/dashboard_controller.dart';
+import '../../../../app/widgets/empty_state_widget.dart';
 
 class ActivityChart extends GetView<DashboardController> {
   const ActivityChart({super.key});
@@ -39,6 +40,23 @@ class ActivityChart extends GetView<DashboardController> {
               return const SizedBox(
                 height: 200,
                 child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            final hasData =
+                controller.billableData.any((v) => v > 0) ||
+                controller.nonBillableData.any((v) => v > 0);
+
+            if (!hasData) {
+              return const SizedBox(
+                height: 200,
+                child: EmptyStateWidget(
+                  isCompact: true,
+                  icon: Icons.show_chart_rounded,
+                  title: 'No Activity Yet',
+                  description:
+                      'Activities will be displayed here once you start tracking time.',
+                ),
               );
             }
 

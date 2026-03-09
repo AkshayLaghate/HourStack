@@ -5,6 +5,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../data/models/task_model.dart';
 import '../../../../data/models/project_model.dart';
 import '../../../kanban/controllers/kanban_controller.dart';
+import '../../../tasks/widgets/task_form_dialog.dart';
 import 'kanban_column.dart';
 
 class KanbanBoardView extends StatefulWidget {
@@ -69,26 +70,36 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
                     title: 'Backlog',
                     status: TaskStatus.backlog,
                     tasks: controller.getTasksForStatus(TaskStatus.backlog),
-                    onAddPressed: () {},
+                    onAddPressed: () => Get.dialog(
+                      const TaskFormDialog(initialStatus: TaskStatus.backlog),
+                    ),
                   ),
                   KanbanColumn(
                     title: 'In Progress',
                     status: TaskStatus.inProgress,
                     tasks: controller.getTasksForStatus(TaskStatus.inProgress),
                     activeTaskId: _activeTaskId,
-                    onAddPressed: () {},
+                    onAddPressed: () => Get.dialog(
+                      const TaskFormDialog(
+                        initialStatus: TaskStatus.inProgress,
+                      ),
+                    ),
                   ),
                   KanbanColumn(
                     title: 'Review',
                     status: TaskStatus.review,
                     tasks: controller.getTasksForStatus(TaskStatus.review),
-                    onAddPressed: () {},
+                    onAddPressed: () => Get.dialog(
+                      const TaskFormDialog(initialStatus: TaskStatus.review),
+                    ),
                   ),
                   KanbanColumn(
                     title: 'Done',
                     status: TaskStatus.done,
                     tasks: controller.getTasksForStatus(TaskStatus.done),
-                    onAddPressed: () {},
+                    onAddPressed: () => Get.dialog(
+                      const TaskFormDialog(initialStatus: TaskStatus.done),
+                    ),
                   ),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/calendar_controller.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/utils/number_extensions.dart';
 
 class CalendarGrid extends GetView<CalendarController> {
   const CalendarGrid({super.key});
@@ -93,7 +94,7 @@ class CalendarGrid extends GetView<CalendarController> {
               const Spacer(),
               if (totalHours > 0) ...[
                 Text(
-                  '${totalHours.toStringAsFixed(1)}h',
+                  '${totalHours.toFormattedString(2)}h',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -101,7 +102,7 @@ class CalendarGrid extends GetView<CalendarController> {
                   ),
                 ),
                 Text(
-                  '\$${totalRevenue.toStringAsFixed(0)}',
+                  totalRevenue.toCurrency(),
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,
