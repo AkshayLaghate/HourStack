@@ -58,6 +58,11 @@ class DashboardController extends GetxController {
   final recentSessions = <SessionModel>[].obs;
   final projectMap = <String, ProjectModel>{}.obs;
 
+  // Additional stats
+  final projectDistribution = <ProjectModel, double>{}.obs;
+  final activeProjectsCount = 0.obs;
+  final heatmapDatasets = <DateTime, int>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -67,7 +72,11 @@ class DashboardController extends GetxController {
   Future<void> loadDashboardData() async {
     isLoading.value = true;
     try {
-      await Future.wait([loadChartData(), loadPeriodStats()]);
+      await Future.wait([
+        loadChartData(),
+        loadPeriodStats(),
+        loadHeatmapData(),
+      ]);
     } catch (e) {
       debugPrint('Error loading dashboard data: $e');
     } finally {
@@ -199,6 +208,13 @@ class DashboardController extends GetxController {
 
     double pHours = 0;
     double pRevenue = 0;
+    final Map<ProjectModel, double> pDist = {};
+
+    for (var p in projects) {
+      if (p.isActive) {
+        pDist[p] = 0.0;
+      }
+    }
 
     for (SessionModel session in sessions) {
       if (session.startTime.isAfter(
@@ -211,14 +227,20 @@ class DashboardController extends GetxController {
 
         pHours += hours;
         pRevenue += revenue;
+
+        if (project != null && hours > 0) {
+          pDist[project] = (pDist[project] ?? 0) + hours;
+        }
       }
     }
 
-    recentSessions.value = sessions
-      ..sort((a, b) => b.startTime.compareTo(a.startTime))
-      ..take(5).toList();
+    sessions.sort((a, b) => b.startTime.compareTo(a.startTime));
+    recentSessions.value = sessions.take(5).toList();
+
     periodTotalHours.value = pHours;
     periodTotalRevenue.value = pRevenue;
+    projectDistribution.value = pDist;
+    activeProjectsCount.value = pDist.length;
 
     // Keep monthly stats as they are (based on current date)
     _loadFixedMonthlyStats(pMap);
@@ -324,6 +346,47 @@ class DashboardController extends GetxController {
 
     billableData.value = billable;
     nonBillableData.value = nonBillable;
+  }
+
+  Future<void> loadHeatmapData() async {
+    final now = DateTime.now();
+    final start = now.subtract(const Duration(days: 365));
+
+    final sessions = await _sessionRepo
+        .getSessionsForRangeStream(start, now)
+        .first;
+    final Map<DateTime, int> heatmap = {};
+
+    for (var session in sessions) {
+      final date = DateTime(
+        session.startTime.year,
+        session.startTime.month,
+        session.startTime.day,
+      );
+      final minutes = session.durationMinutes;
+      heatmap[date] = (heatmap[date] ?? 0) + minutes;
+    }
+
+    // Convert minutes to a scale 1-5
+    final Map<DateTime, int> scaledHeatmap = {};
+    for (var entry in heatmap.entries) {
+      final hours = entry.value / 60.0;
+      if (hours <= 0) continue;
+
+      int intensity = 1;
+      if (hours > 6) {
+        intensity = 5;
+      } else if (hours > 4) {
+        intensity = 4;
+      } else if (hours > 2) {
+        intensity = 3;
+      } else if (hours > 1) {
+        intensity = 2;
+      }
+      scaledHeatmap[entry.key] = intensity;
+    }
+
+    heatmapDatasets.value = scaledHeatmap;
   }
 
   Future<void> loadMonthlyAndTodayStats() async {

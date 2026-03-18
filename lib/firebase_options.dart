@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '802884049696',
     projectId: 'hourstack-app',
     storageBucket: 'hourstack-app.firebasestorage.app',
-    iosClientId: '802884049696-uosgaptrbcpdrv0tauuiblh0td7t6grv.apps.googleusercontent.com',
+    iosClientId:
+        '802884049696-uosgaptrbcpdrv0tauuiblh0td7t6grv.apps.googleusercontent.com',
     iosBundleId: 'com.example.hourstack',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '802884049696',
     projectId: 'hourstack-app',
     storageBucket: 'hourstack-app.firebasestorage.app',
-    iosClientId: '802884049696-uosgaptrbcpdrv0tauuiblh0td7t6grv.apps.googleusercontent.com',
+    iosClientId:
+        '802884049696-uosgaptrbcpdrv0tauuiblh0td7t6grv.apps.googleusercontent.com',
     iosBundleId: 'com.example.hourstack',
   );
 }

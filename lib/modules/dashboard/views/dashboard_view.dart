@@ -9,8 +9,8 @@ import 'widgets/stat_card.dart';
 import 'widgets/activity_chart.dart';
 import 'widgets/recent_entries.dart';
 import 'widgets/timer_card.dart';
-import 'widgets/budget_status.dart';
-import 'widgets/team_list.dart';
+import 'widgets/project_distribution.dart';
+import 'widgets/activity_heatmap.dart';
 import '../../../app/utils/number_extensions.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -30,34 +30,38 @@ class DashboardView extends GetView<DashboardController> {
           _buildStatsGrid(isDesktop),
           const SizedBox(height: 32),
           if (isDesktop)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
               children: [
-                // Left Column
-                const Expanded(
-                  flex: 3,
-                  child: Column(
-                    children: [
-                      ActivityChart(),
-                      SizedBox(height: 32),
-                      RecentEntries(),
-                    ],
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column
+                    const Expanded(
+                      flex: 3,
+                      child: Column(
+                        children: [
+                          ActivityChart(),
+                          SizedBox(height: 32),
+                          RecentEntries(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 32),
+                    // Right Column (Sidebar)
+                    const SizedBox(
+                      width: 340,
+                      child: Column(
+                        children: [
+                          TimerCard(),
+                          SizedBox(height: 32),
+                          ProjectDistribution(),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 32),
-                // Right Column (Sidebar)
-                const SizedBox(
-                  width: 340,
-                  child: Column(
-                    children: [
-                      TimerCard(),
-                      SizedBox(height: 32),
-                      BudgetStatus(),
-                      SizedBox(height: 32),
-                      TeamList(),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 32),
+                const ActivityHeatmap(),
               ],
             )
           else
@@ -68,11 +72,11 @@ class DashboardView extends GetView<DashboardController> {
                 SizedBox(height: 32),
                 ActivityChart(),
                 SizedBox(height: 32),
+                ProjectDistribution(),
+                SizedBox(height: 32),
+                ActivityHeatmap(),
+                SizedBox(height: 32),
                 RecentEntries(),
-                SizedBox(height: 32),
-                BudgetStatus(),
-                SizedBox(height: 32),
-                TeamList(),
               ],
             ),
         ],

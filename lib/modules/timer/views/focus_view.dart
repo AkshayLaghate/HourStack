@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../data/models/project_model.dart';
-import '../../../data/models/task_model.dart';
 import '../../projects/controllers/project_controller.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../controllers/timer_controller.dart';
@@ -22,36 +21,93 @@ class FocusView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.close_fullscreen_rounded,
-            color: AppColors.textSecondary,
-          ),
-          onPressed: () => Get.back(),
-        ),
-        title: const Text(
-          'HourStack',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
+        leadingWidth: 200,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 24.0),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.hourglass_bottom_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'HourStack',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: AppColors.textSecondary,
-            ),
+          TextButton(
             onPressed: () {},
+            child: const Text(
+              'Timer',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              'Projects',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              'Reports',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            decoration: const BoxDecoration(
+              color: AppColors.background,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: const Icon(
+                Icons.notifications_none_rounded,
+                color: AppColors.textSecondary,
+                size: 20,
+              ),
+              onPressed: () {},
+            ),
           ),
           const Padding(
-            padding: EdgeInsets.only(right: 16.0),
+            padding: EdgeInsets.only(right: 24.0, left: 16.0),
             child: CircleAvatar(
               radius: 16,
               backgroundColor: Color(0xFFFED7AA),
               child: Text(
                 'AL',
-                style: TextStyle(fontSize: 10, color: Colors.brown),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.brown,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -123,13 +179,15 @@ class FocusView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'SESSION 1 OF 4',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
+                  Obx(
+                    () => Text(
+                      timerController.selectedTask.value?.title ??
+                          'Working on UI Design for Dashboard',
+                      style: const TextStyle(
+                        color: AppColors.textHint,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -174,72 +232,54 @@ class FocusView extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
-
-                  // Task Selection
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Working on Task',
-                      style: TextStyle(
-                        color: AppColors.textPrimary.withOpacity(0.8),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.divider),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<TaskModel>(
-                          value: timerController.selectedTask.value,
-                          hint: const Text('Select Task'),
-                          isExpanded: true,
-                          items: timerController.availableTasks.map((t) {
-                            return DropdownMenuItem(
-                              value: t,
-                              child: Text(t.title),
-                            );
-                          }).toList(),
-                          onChanged: timerController.isTimerRunning.value
-                              ? null
-                              : (t) => timerController.setTask(t),
-                        ),
-                      ),
-                    ),
-                  ),
-
                   const SizedBox(height: 32),
 
                   // Start/Stop Buttons
                   Row(
                     children: [
                       Expanded(
-                        child: Obx(
-                          () => ElevatedButton.icon(
-                            onPressed: timerController.isTimerRunning.value
-                                ? null
-                                : () => timerController.startTimer(),
-                            icon: const Icon(Icons.play_arrow_rounded),
-                            label: const Text('Start Timer'),
+                        child: Obx(() {
+                          final isRunning =
+                              timerController.isTimerRunning.value;
+                          final isPaused = timerController.isPaused.value;
+                          return ElevatedButton.icon(
+                            onPressed: () {
+                              if (isRunning) {
+                                if (isPaused) {
+                                  timerController.resumeTimer();
+                                } else {
+                                  timerController.pauseTimer();
+                                }
+                              } else {
+                                timerController.startTimer();
+                              }
+                            },
+                            icon: Icon(
+                              isRunning && !isPaused
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
+                              size: 20,
+                            ),
+                            label: Text(
+                              isRunning && !isPaused
+                                  ? 'Pause'
+                                  : (isPaused ? 'Resume' : 'Start Timer'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 20),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                               elevation: 0,
                             ),
-                          ),
-                        ),
+                          );
+                        }),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -248,14 +288,20 @@ class FocusView extends StatelessWidget {
                             timerController.stopTimer();
                             Get.back();
                           },
-                          icon: const Icon(Icons.stop_rounded),
-                          label: const Text('Stop'),
+                          icon: const Icon(Icons.stop_rounded, size: 20),
+                          label: const Text(
+                            'Stop',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.textPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: const BorderSide(color: AppColors.divider),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            side: const BorderSide(color: AppColors.border),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                         ),
@@ -326,10 +372,10 @@ class FocusView extends StatelessWidget {
     IconData icon,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
@@ -338,55 +384,55 @@ class FocusView extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: iconColor, size: 18),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+            child: Icon(icon, color: iconColor, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
                   title,
                   style: const TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      trend,
+                      style: TextStyle(
+                        color: iconColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                trend,
-                style: TextStyle(
-                  color: iconColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
