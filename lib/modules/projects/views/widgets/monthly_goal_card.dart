@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/utils/constants.dart';
 import '../../../../app/utils/number_extensions.dart';
 
@@ -23,8 +22,11 @@ class MonthlyGoalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F2FF),
-        borderRadius: BorderRadius.circular(24),
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.15),
+        ),
       ),
       child: Row(
         children: [
@@ -33,11 +35,12 @@ class MonthlyGoalCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'TOTAL MONTHLY GOAL',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6366F1),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryGlow,
                     letterSpacing: 1,
                   ),
                 ),
@@ -48,14 +51,33 @@ class MonthlyGoalCard extends StatelessWidget {
                   children: [
                     Text(
                       '${AppConstants.defaultCurrencySymbol}${totalEarning.toThousandSeparator(2)}',
-                      style: AppTextStyles.h1.copyWith(fontSize: 40),
+                      style: const TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.darkTextPrimary,
+                        letterSpacing: -1,
+                      ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      '${(progress * 100).toInt()}% Achieved',
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: const Color(0xFF10B981),
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: AppColors.success.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Text(
+                        '${(progress * 100).toInt()}% Achieved',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.greenGlow,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
@@ -73,9 +95,9 @@ class MonthlyGoalCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
                     value: progress,
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.darkBorder.withValues(alpha: 0.4),
                     valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF6366F1),
+                      AppColors.primary,
                     ),
                     minHeight: 12,
                   ),
@@ -83,8 +105,9 @@ class MonthlyGoalCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'You are ${AppConstants.defaultCurrencySymbol}${remaining.toThousandSeparator(2)} away from your monthly target. Keep it up!',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.darkTextSecondary,
                   ),
                 ),
               ],

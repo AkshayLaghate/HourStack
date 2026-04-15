@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hourstack/app/theme/app_colors.dart';
-import 'package:hourstack/app/theme/app_text_styles.dart';
 import 'package:hourstack/modules/projects/controllers/project_controller.dart';
 import 'package:hourstack/app/utils/constants.dart';
 import 'dart:ui';
@@ -47,7 +46,6 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
         controller.addClient(_selectedClient!);
       }
 
-      // Ensure payment type is valid for the dropdown
       if (_paymentType != 'Hourly' && _paymentType != 'Fixed Price') {
         _paymentType = 'Hourly';
       }
@@ -73,7 +71,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
       Get.snackbar(
         'Required Field',
         'Please enter a project name',
-        backgroundColor: Colors.redAccent,
+        backgroundColor: AppColors.error,
         colorText: Colors.white,
       );
       return;
@@ -97,7 +95,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
     } else {
       controller.addProject(
         name,
-        '', // description placeholder
+        '',
         _paymentType == 'Hourly' ? rateValue : 0.0,
         clientName: _selectedClient ?? '',
         paymentType: _paymentType,
@@ -114,12 +112,17 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: AppColors.loginDarkSurface,
       surfaceTintColor: Colors.transparent,
       child: Container(
         width: 600,
         padding: const EdgeInsets.all(40),
+        decoration: BoxDecoration(
+          color: AppColors.loginDarkSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.loginDarkBorder),
+        ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -127,17 +130,25 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
             children: [
               Text(
                 _isEdit ? 'Edit Project' : 'Create New Project',
-                style: AppTextStyles.h2,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.loginDarkTextPrimary,
+                  letterSpacing: -0.5,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 _isEdit
                     ? 'Update your project settings and tracking preferences.'
                     : 'Set up your workspace and start tracking billable hours.',
-                style: AppTextStyles.bodyMedium,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.loginDarkTextSecondary,
+                ),
               ),
               const SizedBox(height: 32),
-              const Divider(color: AppColors.divider, height: 1),
+              Divider(color: AppColors.loginDarkBorder, height: 1),
               const SizedBox(height: 32),
 
               Row(
@@ -150,9 +161,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                       children: [
                         _buildLabel('Project Cover'),
                         const SizedBox(height: 8),
-                        _buildDashedCoverUploader(
-                          height: 180,
-                        ), // Normalized height to match two input fields
+                        _buildDashedCoverUploader(height: 180),
                       ],
                     ),
                   ),
@@ -210,7 +219,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                             child: Text(
                               _selectedCurrency == 'INR' ? '₹' : '\$',
                               style: const TextStyle(
-                                color: AppColors.textHint,
+                                color: AppColors.loginDarkTextSecondary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -260,7 +269,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                 subtitle: 'Track earnings for this project',
                 value: _isBillable,
                 onChanged: (val) => setState(() => _isBillable = val),
-                iconColor: const Color(0xFF14B8A6), // Teal color
+                iconColor: AppColors.greenGlow,
               ),
               const SizedBox(height: 32),
 
@@ -271,7 +280,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                       onPressed: () => Get.back(),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: AppColors.border),
+                        side: const BorderSide(color: AppColors.loginDarkBorder),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -279,7 +288,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                       child: const Text(
                         'Cancel',
                         style: TextStyle(
-                          color: AppColors.textPrimary,
+                          color: AppColors.loginDarkTextPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -317,9 +326,9 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: AppColors.loginDarkTextSecondary,
       ),
     );
   }
@@ -335,9 +344,16 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
       controller: controller,
       keyboardType: keyboardType,
       autofocus: autofocus,
+      style: const TextStyle(
+        fontSize: 14,
+        color: AppColors.loginDarkTextPrimary,
+      ),
+      cursorColor: AppColors.primaryGlow,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: AppColors.textHint),
+        hintStyle: TextStyle(
+          color: AppColors.loginDarkTextSecondary.withValues(alpha: 0.4),
+        ),
         prefixIcon: prefixIcon != null
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -345,18 +361,18 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
               )
             : null,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.loginDarkInputBg,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 14,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.loginDarkInputBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
     );
@@ -374,63 +390,67 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
       return DropdownButtonFormField<String>(
         initialValue: value ?? _selectedClient,
         isExpanded: true,
+        dropdownColor: AppColors.loginDarkCard,
+        style: const TextStyle(
+          color: AppColors.loginDarkTextPrimary,
+          fontSize: 14,
+        ),
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppColors.loginDarkInputBg,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 16,
+            vertical: 14,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.loginDarkInputBorder),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.primary),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
           ),
         ),
         icon: const Icon(
           Icons.keyboard_arrow_down_rounded,
-          color: AppColors.textHint,
+          color: AppColors.loginDarkTextSecondary,
         ),
         hint: Text(
           hint ?? 'Select Client',
-          style: const TextStyle(color: AppColors.textHint),
+          style: TextStyle(
+            color: AppColors.loginDarkTextSecondary.withValues(alpha: 0.5),
+          ),
         ),
         items: [
           if (dropdownItems == null)
             ...controller.clients.map(
-              (client) => DropdownMenuItem(value: client, child: Text(client)),
+              (client) => DropdownMenuItem(
+                value: client,
+                child: Text(client),
+              ),
             ),
           if (dropdownItems != null)
             ...dropdownItems.map(
               (item) => DropdownMenuItem(
                 value: item,
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 16,
-                  ),
-                ),
+                child: Text(item),
               ),
             ),
           if (dropdownItems == null) ...[
-            const DropdownMenuItem(
+            DropdownMenuItem(
               value: 'ADD_NEW',
               child: Row(
                 children: [
                   Icon(
                     Icons.add_circle_outline,
                     size: 18,
-                    color: Color(0xFF14B8A6),
+                    color: AppColors.greenGlow,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'Add New Client...',
                     style: TextStyle(
-                      color: Color(0xFF14B8A6),
+                      color: AppColors.greenGlow,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -451,7 +471,6 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
       );
     }
 
-    // Only use Obx if we are displaying reactive clients
     if (dropdownItems == null) {
       return Obx(() => buildDropdownField());
     }
@@ -481,11 +500,13 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.loginDarkSurface,
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.loginDarkSurface,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.loginDarkBorder),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -496,13 +517,16 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: AppColors.loginDarkTextPrimary,
                 ),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Enter the name of the new client to add to your list.',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.loginDarkTextSecondary,
+                ),
               ),
               const SizedBox(height: 24),
               _buildLabel('Client Name'),
@@ -520,7 +544,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                     onPressed: () => Get.back(),
                     child: const Text(
                       'Cancel',
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: AppColors.loginDarkTextSecondary),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -535,7 +559,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF14B8A6),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(
@@ -560,25 +584,30 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
   Widget _buildPaymentTypeDropdown() {
     return DropdownButtonFormField<String>(
       initialValue: _paymentType,
+      dropdownColor: AppColors.loginDarkCard,
+      style: const TextStyle(
+        color: AppColors.loginDarkTextPrimary,
+        fontSize: 14,
+      ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.loginDarkInputBg,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 14,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.loginDarkInputBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
       icon: const Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: AppColors.textHint,
+        color: AppColors.loginDarkTextSecondary,
       ),
       items: const [
         DropdownMenuItem(value: 'Hourly', child: Text('Hourly')),
@@ -595,7 +624,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
       borderRadius: BorderRadius.circular(12),
       child: CustomPaint(
         painter: _DashedBorderPainter(
-          color: AppColors.border.withValues(alpha: 0.8),
+          color: AppColors.loginDarkBorder,
           radius: 12,
         ),
         child: Container(
@@ -603,7 +632,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: AppColors.background.withValues(alpha: 0.5),
+            color: AppColors.loginDarkInputBg,
           ),
           child: Obx(() {
             final XFile? selectedImage = controller.selectedCoverImage.value;
@@ -622,7 +651,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                             fit: BoxFit.cover,
                           ),
                     Container(
-                      color: Colors.black26,
+                      color: Colors.black45,
                       child: const Icon(
                         Icons.edit_rounded,
                         color: Colors.white,
@@ -644,10 +673,10 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                       existingImageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) =>
-                          const Center(child: Icon(Icons.error_outline)),
+                          const Center(child: Icon(Icons.error_outline, color: AppColors.darkTextMuted)),
                     ),
                     Container(
-                      color: Colors.black26,
+                      color: Colors.black45,
                       child: const Icon(
                         Icons.edit_rounded,
                         color: Colors.white,
@@ -664,14 +693,14 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
               children: [
                 const Icon(
                   Icons.add_photo_alternate_rounded,
-                  color: AppColors.textHint,
+                  color: AppColors.darkTextMuted,
                   size: 28,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Click to upload',
                   style: TextStyle(
-                    color: AppColors.textHint.withValues(alpha: 0.8),
+                    color: AppColors.darkTextMuted.withValues(alpha: 0.8),
                     fontSize: 13,
                   ),
                 ),
@@ -694,8 +723,9 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.loginDarkInputBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.loginDarkInputBorder),
       ),
       child: Row(
         children: [
@@ -710,7 +740,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: AppColors.loginDarkTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -718,7 +748,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: AppColors.loginDarkTextSecondary,
                   ),
                 ),
               ],
@@ -727,10 +757,10 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeTrackColor: const Color(0xFF14B8A6),
+            activeTrackColor: AppColors.primary,
             activeThumbColor: Colors.white,
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor: AppColors.border,
+            inactiveThumbColor: AppColors.loginDarkTextSecondary,
+            inactiveTrackColor: AppColors.loginDarkBorder,
           ),
         ],
       ),
@@ -740,22 +770,22 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
   Widget _buildDeadlinePicker() {
     return InkWell(
       onTap: _selectDeadline,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(10),
       child: InputDecorator(
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppColors.loginDarkInputBg,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 12,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.loginDarkInputBorder),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.primary),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
           ),
         ),
         child: Row(
@@ -764,8 +794,8 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
               Icons.calendar_today_rounded,
               size: 18,
               color: _selectedDeadline == null
-                  ? AppColors.textHint
-                  : AppColors.primary,
+                  ? AppColors.darkTextMuted
+                  : AppColors.primaryGlow,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -775,9 +805,9 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                     : DateFormat('MMM dd, yyyy').format(_selectedDeadline!),
                 style: TextStyle(
                   color: _selectedDeadline == null
-                      ? AppColors.textHint
-                      : AppColors.textPrimary,
-                  fontSize: 16,
+                      ? AppColors.darkTextMuted
+                      : AppColors.loginDarkTextPrimary,
+                  fontSize: 14,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -791,7 +821,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                 child: const Icon(
                   Icons.close_rounded,
                   size: 18,
-                  color: AppColors.textHint,
+                  color: AppColors.darkTextMuted,
                 ),
               ),
           ],
@@ -809,13 +839,14 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
+            colorScheme: const ColorScheme.dark(
               primary: AppColors.primary,
               onPrimary: Colors.white,
-              onSurface: AppColors.textPrimary,
+              surface: AppColors.loginDarkCard,
+              onSurface: AppColors.loginDarkTextPrimary,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primaryGlow),
             ),
           ),
           child: child!,

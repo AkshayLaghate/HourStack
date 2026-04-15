@@ -31,8 +31,8 @@ class DailyGrid extends GetView<CalendarController> {
                       DateFormat('EEEE').format(day).toUpperCase(),
                       style: const TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryGlow,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -41,8 +41,9 @@ class DailyGrid extends GetView<CalendarController> {
                       DateFormat('MMMM d, yyyy').format(day),
                       style: const TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.darkTextPrimary,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ],
@@ -53,8 +54,11 @@ class DailyGrid extends GetView<CalendarController> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight.withOpacity(0.2),
+                    color: AppColors.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -62,15 +66,15 @@ class DailyGrid extends GetView<CalendarController> {
                         totalHours.toDurationString(),
                         style: const TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryGlow,
                         ),
                       ),
                       Text(
                         totalRevenue.toCurrency(),
                         style: const TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: AppColors.darkTextSecondary,
                         ),
                       ),
                     ],
@@ -83,8 +87,8 @@ class DailyGrid extends GetView<CalendarController> {
               'SESSIONS',
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textHint,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkTextMuted,
                 letterSpacing: 1.0,
               ),
             ),
@@ -110,18 +114,11 @@ class DailyGrid extends GetView<CalendarController> {
                         return Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: AppColors.card,
+                            color: AppColors.darkCard,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: AppColors.border.withOpacity(0.5),
+                              color: AppColors.darkBorder.withValues(alpha: 0.5),
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.02),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           child: Row(
                             children: [
@@ -143,7 +140,7 @@ class DailyGrid extends GetView<CalendarController> {
                                           .toUpperCase(),
                                       style: TextStyle(
                                         fontSize: 11,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w700,
                                         color: projectColor,
                                         letterSpacing: 0.5,
                                       ),
@@ -154,7 +151,7 @@ class DailyGrid extends GetView<CalendarController> {
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
+                                        color: AppColors.darkTextPrimary,
                                       ),
                                     ),
                                   ],
@@ -169,7 +166,7 @@ class DailyGrid extends GetView<CalendarController> {
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
+                                      color: AppColors.darkTextPrimary,
                                     ),
                                   ),
                                   Text(
@@ -178,7 +175,7 @@ class DailyGrid extends GetView<CalendarController> {
                                     ).format(session.startTime),
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textHint,
+                                      color: AppColors.darkTextMuted,
                                     ),
                                   ),
                                 ],
@@ -203,12 +200,15 @@ class DailyGrid extends GetView<CalendarController> {
           Icon(
             Icons.calendar_today_outlined,
             size: 64,
-            color: AppColors.textHint.withOpacity(0.3),
+            color: AppColors.darkTextMuted.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           const Text(
             'No sessions tracked for this day',
-            style: TextStyle(color: AppColors.textHint, fontSize: 16),
+            style: TextStyle(
+              color: AppColors.darkTextMuted,
+              fontSize: 16,
+            ),
           ),
         ],
       ),

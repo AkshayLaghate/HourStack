@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../../../data/models/project_model.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/widgets/empty_state_widget.dart';
 import 'summary_card.dart';
 
@@ -38,7 +37,6 @@ class AnalyticsTabView extends StatelessWidget {
   Widget _buildPerformanceMetrics() {
     final currencyFormat = NumberFormat.simpleCurrency(name: project.currency);
 
-    // Calculate some derived metrics
     final weeklyEfficiency = project.weeklyGoalHours > 0
         ? (project.thisWeekHours / project.weeklyGoalHours * 100).toInt()
         : 0;
@@ -49,7 +47,15 @@ class AnalyticsTabView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Performance Overview', style: AppTextStyles.h2),
+        const Text(
+          'Performance Overview',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.darkTextPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
         const SizedBox(height: 24),
         Row(
           children: [
@@ -84,7 +90,8 @@ class AnalyticsTabView extends StatelessWidget {
                 icon: project.isActive
                     ? Icons.check_circle_outline_rounded
                     : Icons.pause_circle_outline_rounded,
-                iconColor: project.isActive ? Colors.green : Colors.orange,
+                iconColor:
+                    project.isActive ? AppColors.success : AppColors.warning,
               ),
             ),
           ],
@@ -97,16 +104,9 @@ class AnalyticsTabView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,14 +114,24 @@ class AnalyticsTabView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Weekly Activity', style: AppTextStyles.h3),
-                  SizedBox(height: 4),
-                  Text(
+                  const Text(
+                    'Weekly Activity',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkTextPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
                     'Hours tracked over the last weeks',
-                    style: AppTextStyles.bodySmall,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.darkTextSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -155,12 +165,12 @@ class AnalyticsTabView extends StatelessWidget {
                           .clamp(20, 1000),
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => AppColors.primary,
+                      getTooltipColor: (_) => AppColors.loginDarkCard,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
                           '${rod.toY.toStringAsFixed(1)} hrs',
                           const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.darkTextPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         );
@@ -174,7 +184,7 @@ class AnalyticsTabView extends StatelessWidget {
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
                           const style = TextStyle(
-                            color: AppColors.textSecondary,
+                            color: AppColors.darkTextSecondary,
                             fontWeight: FontWeight.w500,
                             fontSize: 12,
                           );
@@ -214,7 +224,7 @@ class AnalyticsTabView extends StatelessWidget {
                             child: Text(
                               '${value.toInt()}h',
                               style: const TextStyle(
-                                color: AppColors.textHint,
+                                color: AppColors.darkTextMuted,
                                 fontSize: 10,
                               ),
                             ),
@@ -233,7 +243,7 @@ class AnalyticsTabView extends StatelessWidget {
                     show: true,
                     drawVerticalLine: false,
                     getDrawingHorizontalLine: (value) => FlLine(
-                      color: AppColors.divider.withValues(alpha: 0.5),
+                      color: AppColors.darkDivider,
                       strokeWidth: 1,
                     ),
                   ),
@@ -268,7 +278,7 @@ class AnalyticsTabView extends StatelessWidget {
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
             toY: goal,
-            color: AppColors.background,
+            color: AppColors.darkBorder.withValues(alpha: 0.3),
           ),
         ),
       ],
@@ -280,7 +290,7 @@ class AnalyticsTabView extends StatelessWidget {
       children: [
         _buildLegendItem('Tracked', AppColors.primary),
         const SizedBox(width: 16),
-        _buildLegendItem('Goal', AppColors.textHint.withValues(alpha: 0.2)),
+        _buildLegendItem('Goal', AppColors.darkBorder.withValues(alpha: 0.5)),
       ],
     );
   }
@@ -297,7 +307,13 @@ class AnalyticsTabView extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text(label, style: AppTextStyles.bodySmall),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            color: AppColors.darkTextSecondary,
+          ),
+        ),
       ],
     );
   }
@@ -306,13 +322,20 @@ class AnalyticsTabView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
-          const Text('Monthly Target', style: AppTextStyles.h3),
+          const Text(
+            'Monthly Target',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: AppColors.darkTextPrimary,
+            ),
+          ),
           const SizedBox(height: 32),
           SizedBox(
             height: 160,
@@ -323,7 +346,7 @@ class AnalyticsTabView extends StatelessWidget {
                 CircularProgressIndicator(
                   value: project.monthlyProgress,
                   strokeWidth: 12,
-                  backgroundColor: AppColors.background,
+                  backgroundColor: AppColors.darkBorder.withValues(alpha: 0.3),
                   valueColor: const AlwaysStoppedAnimation<Color>(
                     AppColors.primary,
                   ),
@@ -335,12 +358,18 @@ class AnalyticsTabView extends StatelessWidget {
                     children: [
                       Text(
                         '${(project.monthlyProgress * 100).toInt()}%',
-                        style: AppTextStyles.h1.copyWith(fontSize: 32),
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.darkTextPrimary,
+                          letterSpacing: -1,
+                        ),
                       ),
-                      Text(
+                      const Text(
                         'Completed',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.darkTextSecondary,
                         ),
                       ),
                     ],
@@ -354,7 +383,7 @@ class AnalyticsTabView extends StatelessWidget {
             'Total Goal',
             '${project.monthlyHours.toInt()} hrs',
           ),
-          const Divider(height: 24),
+          Divider(height: 24, color: AppColors.darkDivider),
           _buildTargetDetail(
             'Remaining',
             '${(project.monthlyHours * (1 - project.monthlyProgress)).toInt()} hrs',
@@ -370,11 +399,19 @@ class AnalyticsTabView extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+          style: const TextStyle(
+            color: AppColors.darkTextSecondary,
+            fontSize: 14,
           ),
         ),
-        Text(value, style: AppTextStyles.h3.copyWith(fontSize: 16)),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppColors.darkTextPrimary,
+          ),
+        ),
       ],
     );
   }

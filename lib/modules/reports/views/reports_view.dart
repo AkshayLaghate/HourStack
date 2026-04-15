@@ -4,6 +4,7 @@ import '../controllers/reports_controller.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../../app/utils/number_extensions.dart';
 import '../../../app/widgets/empty_state_widget.dart';
+import '../../../app/theme/app_colors.dart';
 
 class ReportsView extends GetView<ReportsController> {
   const ReportsView({super.key});
@@ -11,10 +12,12 @@ class ReportsView extends GetView<ReportsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.darkBg,
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
         }
 
         return ListView(
@@ -35,23 +38,24 @@ class ReportsView extends GetView<ReportsController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
+        const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Reports',
               style: TextStyle(
                 fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                fontWeight: FontWeight.w800,
+                color: AppColors.darkTextPrimary,
+                letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               'Analyze and export your workspace performance',
               style: TextStyle(
                 fontSize: 14,
-                color: const Color(0xFF64748B), // Custom Slate 500
+                color: AppColors.darkTextSecondary,
               ),
             ),
           ],
@@ -71,17 +75,32 @@ class ReportsView extends GetView<ReportsController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Obx(() {
         final projects = controller.projectController.projects;
         return DropdownButtonHideUnderline(
           child: DropdownButton<String?>(
             value: controller.selectedProject.value?.id,
-            hint: const Text('All Projects', style: TextStyle(fontSize: 14)),
-            icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+            hint: const Text(
+              'All Projects',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.darkTextSecondary,
+              ),
+            ),
+            icon: const Icon(
+              Icons.keyboard_arrow_down,
+              size: 20,
+              color: AppColors.darkTextSecondary,
+            ),
+            dropdownColor: AppColors.darkCard,
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.darkTextPrimary,
+            ),
             onChanged: (String? id) {
               final project = id == null
                   ? null
@@ -91,7 +110,10 @@ class ReportsView extends GetView<ReportsController> {
             items: [
               const DropdownMenuItem<String?>(
                 value: null,
-                child: Text('All Projects', style: TextStyle(fontSize: 14)),
+                child: Text(
+                  'All Projects',
+                  style: TextStyle(fontSize: 14, color: AppColors.darkTextPrimary),
+                ),
               ),
               ...projects.map(
                 (p) => DropdownMenuItem<String?>(
@@ -107,7 +129,13 @@ class ReportsView extends GetView<ReportsController> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(p.name, style: const TextStyle(fontSize: 14)),
+                      Text(
+                        p.name,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.darkTextPrimary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -125,15 +153,26 @@ class ReportsView extends GetView<ReportsController> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.darkCard,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(
+              color: AppColors.darkBorder.withValues(alpha: 0.5),
+            ),
           ),
           child: Obx(
             () => DropdownButtonHideUnderline(
               child: DropdownButton<dynamic>(
-                // Use dynamic or DateRangeType
                 value: controller.rangeType.value,
+                dropdownColor: AppColors.darkCard,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.darkTextPrimary,
+                ),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 20,
+                  color: AppColors.darkTextSecondary,
+                ),
                 onChanged: (value) {
                   if (value != null) controller.setRange(value);
                 },
@@ -166,9 +205,11 @@ class ReportsView extends GetView<ReportsController> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.darkCard,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(
+                color: AppColors.darkBorder.withValues(alpha: 0.5),
+              ),
             ),
             child: Row(
               children: [
@@ -178,7 +219,7 @@ class ReportsView extends GetView<ReportsController> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF334155),
+                      color: AppColors.darkTextPrimary,
                     ),
                   ),
                 ),
@@ -186,7 +227,7 @@ class ReportsView extends GetView<ReportsController> {
                 const Icon(
                   Icons.calendar_today,
                   size: 16,
-                  color: Color(0xFF64748B),
+                  color: AppColors.darkTextSecondary,
                 ),
               ],
             ),
@@ -199,16 +240,9 @@ class ReportsView extends GetView<ReportsController> {
   Widget _buildProjectSummaryCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)), // Custom Slate 100
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,8 +256,8 @@ class ReportsView extends GetView<ReportsController> {
                   'Project Summary',
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkTextPrimary,
                   ),
                 ),
                 Row(
@@ -244,31 +278,31 @@ class ReportsView extends GetView<ReportsController> {
               ],
             ),
           ),
-          const Divider(height: 1),
+          Divider(height: 1, color: AppColors.darkDivider),
           _buildTable(),
-          const Divider(height: 1),
+          Divider(height: 1, color: AppColors.darkDivider),
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Export Report',
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkTextPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       'Generate a downloadable file with all current report data.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF64748B), // Custom Slate 500
+                        color: AppColors.darkTextSecondary,
                       ),
                     ),
                   ],
@@ -310,7 +344,7 @@ class ReportsView extends GetView<ReportsController> {
           label,
           style: const TextStyle(
             fontSize: 13,
-            color: Color(0xFF64748B), // Custom Slate 500
+            color: AppColors.darkTextSecondary,
           ),
         ),
         const SizedBox(width: 4),
@@ -319,7 +353,7 @@ class ReportsView extends GetView<ReportsController> {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppColors.darkTextPrimary,
           ),
         ),
       ],
@@ -346,9 +380,9 @@ class ReportsView extends GetView<ReportsController> {
       },
       children: [
         TableRow(
-          decoration: const BoxDecoration(
-            color: Color(0xFFF8FAFC),
-          ), // Custom Slate 50
+          decoration: BoxDecoration(
+            color: AppColors.darkSurface,
+          ),
           children: [
             _buildTableHeader('DATE'),
             _buildTableHeader('PROJECT'),
@@ -384,8 +418,8 @@ class ReportsView extends GetView<ReportsController> {
         text,
         style: const TextStyle(
           fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF94A3B8), // Custom Slate 400
+          fontWeight: FontWeight.w700,
+          color: AppColors.darkTextMuted,
           letterSpacing: 0.5,
         ),
       ),
@@ -401,8 +435,8 @@ class ReportsView extends GetView<ReportsController> {
           fontSize: 13,
           fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
           color: isBold
-              ? const Color(0xFF1E293B)
-              : const Color(0xFF475569), // Custom Slate 600
+              ? AppColors.darkTextPrimary
+              : AppColors.darkTextSecondary,
         ),
       ),
     );
@@ -424,7 +458,7 @@ class ReportsView extends GetView<ReportsController> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppColors.darkTextPrimary,
             ),
           ),
         ],
@@ -441,15 +475,15 @@ class ReportsView extends GetView<ReportsController> {
     return Container(
       height: 44,
       decoration: BoxDecoration(
-        color: isPrimary ? const Color(0xFF6366F1) : Colors.white,
+        color: isPrimary ? AppColors.primary : AppColors.darkSurface,
         borderRadius: BorderRadius.circular(12),
         border: isPrimary
             ? null
-            : Border.all(color: const Color(0xFFE2E8F0)), // Custom Slate 200
+            : Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -470,7 +504,7 @@ class ReportsView extends GetView<ReportsController> {
                   size: 18,
                   color: isPrimary
                       ? Colors.white
-                      : const Color(0xFF334155), // Custom Slate 700
+                      : AppColors.darkTextSecondary,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -480,7 +514,7 @@ class ReportsView extends GetView<ReportsController> {
                     fontWeight: FontWeight.w600,
                     color: isPrimary
                         ? Colors.white
-                        : const Color(0xFF334155), // Custom Slate 700
+                        : AppColors.darkTextSecondary,
                   ),
                 ),
               ],
@@ -500,8 +534,8 @@ class ReportsView extends GetView<ReportsController> {
               'TOTAL HOURS',
               controller.totalHours.value.toDurationString(),
               Icons.access_time_filled,
-              const Color(0xFF6366F1).withValues(alpha: 0.1),
-              const Color(0xFF6366F1),
+              AppColors.primary.withValues(alpha: 0.1),
+              AppColors.primaryGlow,
             ),
           ),
           const SizedBox(width: 24),
@@ -510,8 +544,8 @@ class ReportsView extends GetView<ReportsController> {
               'BILLABLE HOURS',
               controller.billableHours.value.toDurationString(),
               Icons.verified_user,
-              const Color(0xFF10B981).withValues(alpha: 0.1),
-              const Color(0xFF10B981),
+              AppColors.success.withValues(alpha: 0.1),
+              AppColors.greenGlow,
             ),
           ),
           const SizedBox(width: 24),
@@ -522,8 +556,8 @@ class ReportsView extends GetView<ReportsController> {
                 symbol: controller.currencySymbol.value,
               ),
               Icons.payments,
-              const Color(0xFFF59E0B).withValues(alpha: 0.1),
-              const Color(0xFFF59E0B),
+              AppColors.warning.withValues(alpha: 0.1),
+              AppColors.amberGlow,
             ),
           ),
           const SizedBox(width: 24),
@@ -532,8 +566,8 @@ class ReportsView extends GetView<ReportsController> {
               'ACTIVE PROJECTS',
               controller.activeProjectsCount.value.toString(),
               Icons.folder_special,
-              const Color(0xFF3B82F6).withValues(alpha: 0.1),
-              const Color(0xFF3B82F6),
+              AppColors.info.withValues(alpha: 0.1),
+              AppColors.blueGlow,
             ),
           ),
         ],
@@ -551,9 +585,9 @@ class ReportsView extends GetView<ReportsController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)), // Custom Slate 100
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -573,8 +607,8 @@ class ReportsView extends GetView<ReportsController> {
                 label,
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF94A3B8), // Custom Slate 400
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkTextMuted,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -583,8 +617,9 @@ class ReportsView extends GetView<ReportsController> {
                 value,
                 style: const TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.darkTextPrimary,
+                  letterSpacing: -0.5,
                 ),
               ),
             ],

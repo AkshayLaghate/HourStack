@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 import '../../../../data/models/task_model.dart';
 import '../../../kanban/controllers/kanban_controller.dart';
 import 'kanban_card.dart';
@@ -32,7 +31,6 @@ class KanbanColumn extends StatelessWidget {
       onWillAcceptWithDetails: (details) => details.data.status != status,
       onAcceptWithDetails: (details) {
         final task = details.data;
-        // Find the controller and update the status
         try {
           final controller = Get.find<KanbanController>();
           controller.updateTaskStatus(task, status);
@@ -48,14 +46,14 @@ class KanbanColumn extends StatelessWidget {
           margin: const EdgeInsets.only(right: 24),
           decoration: BoxDecoration(
             color: isHovering
-                ? AppColors.primary.withValues(alpha: 0.05)
-                : const Color(0xFFF8F9FB),
-            borderRadius: BorderRadius.circular(24),
+                ? AppColors.primary.withValues(alpha: 0.06)
+                : AppColors.darkSurface,
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isHovering
-                  ? AppColors.primary.withValues(alpha: 0.2)
-                  : Colors.transparent,
-              width: 2,
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.darkBorder.withValues(alpha: 0.3),
+              width: isHovering ? 2 : 1,
             ),
           ),
           child: Column(
@@ -87,10 +85,10 @@ class KanbanColumn extends StatelessWidget {
     bool isStatusActive = status == TaskStatus.inProgress;
     Color countBgColor = isStatusActive
         ? AppColors.primary
-        : AppColors.textHint.withValues(alpha: 0.2);
+        : AppColors.darkTextMuted.withValues(alpha: 0.2);
     Color countTextColor = isStatusActive
         ? Colors.white
-        : AppColors.textSecondary;
+        : AppColors.darkTextSecondary;
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -101,10 +99,11 @@ class KanbanColumn extends StatelessWidget {
             children: [
               Text(
                 title.toUpperCase(),
-                style: AppTextStyles.h3.copyWith(
-                  fontSize: 14,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
-                  color: AppColors.textPrimary,
+                  color: AppColors.darkTextSecondary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -116,7 +115,7 @@ class KanbanColumn extends StatelessWidget {
                 ),
                 child: Text(
                   '${tasks.length}',
-                  style: AppTextStyles.bodySmall.copyWith(
+                  style: TextStyle(
                     color: countTextColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
@@ -129,7 +128,7 @@ class KanbanColumn extends StatelessWidget {
             onPressed: onAddPressed,
             icon: const Icon(
               Icons.add_circle_outline_rounded,
-              color: AppColors.textHint,
+              color: AppColors.darkTextMuted,
               size: 24,
             ),
             padding: EdgeInsets.zero,

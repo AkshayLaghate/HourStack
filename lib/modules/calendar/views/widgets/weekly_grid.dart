@@ -40,8 +40,8 @@ class WeeklyGrid extends GetView<CalendarController> {
                     day,
                     style: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textHint,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkTextMuted,
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -68,9 +68,13 @@ class WeeklyGrid extends GetView<CalendarController> {
         child: Container(
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.primaryLight.withOpacity(0.1)
-                : AppColors.card,
-            border: Border.all(color: AppColors.divider.withOpacity(0.5)),
+                ? AppColors.primary.withValues(alpha: 0.06)
+                : AppColors.darkSurface,
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.darkDivider.withValues(alpha: 0.5),
+            ),
           ),
           child: Column(
             children: [
@@ -79,24 +83,35 @@ class WeeklyGrid extends GetView<CalendarController> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primaryLight.withOpacity(0.2)
+                      ? AppColors.primary.withValues(alpha: 0.08)
                       : Colors.transparent,
                   border: Border(
                     bottom: BorderSide(
-                      color: AppColors.divider.withOpacity(0.5),
+                      color: AppColors.darkDivider.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
                 child: Column(
                   children: [
-                    Text(
-                      '${day.day}',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: isToday
-                            ? AppColors.primary
-                            : AppColors.textPrimary,
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: isToday
+                          ? BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            )
+                          : null,
+                      alignment: Alignment.center,
+                      child: Text(
+                        '${day.day}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: isToday
+                              ? Colors.white
+                              : AppColors.darkTextPrimary,
+                        ),
                       ),
                     ),
                     if (totalHours > 0)
@@ -105,7 +120,7 @@ class WeeklyGrid extends GetView<CalendarController> {
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          color: AppColors.primaryGlow,
                         ),
                       ),
                   ],
@@ -129,7 +144,7 @@ class WeeklyGrid extends GetView<CalendarController> {
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: projectColor.withOpacity(0.1),
+                        color: projectColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                         border: Border(
                           left: BorderSide(color: projectColor, width: 4),
@@ -143,7 +158,7 @@ class WeeklyGrid extends GetView<CalendarController> {
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: AppColors.darkTextPrimary,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -167,13 +182,13 @@ class WeeklyGrid extends GetView<CalendarController> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   width: double.infinity,
-                  color: AppColors.background.withOpacity(0.5),
+                  color: AppColors.darkBg.withValues(alpha: 0.5),
                   child: Text(
                     totalRevenue.toCurrency(),
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textSecondary,
+                      color: AppColors.darkTextSecondary,
                     ),
                     textAlign: TextAlign.center,
                   ),

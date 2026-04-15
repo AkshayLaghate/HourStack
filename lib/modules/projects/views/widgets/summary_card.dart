@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 
 class SummaryCard extends StatelessWidget {
   final String title;
@@ -27,13 +26,13 @@ class SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.01),
-            blurRadius: 30,
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
@@ -46,22 +45,30 @@ class SummaryCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                style: const TextStyle(
+                  color: AppColors.darkTextSecondary,
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
-              Icon(icon, color: const Color(0xFF6366F1), size: 18),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             value,
-            style: AppTextStyles.h1.copyWith(
+            style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
               letterSpacing: -1,
+              color: AppColors.darkTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -72,14 +79,15 @@ class SummaryCard extends StatelessWidget {
                   isTrendPositive
                       ? Icons.trending_up_rounded
                       : Icons.trending_down_rounded,
-                  color: const Color(0xFF22C55E),
+                  color: isTrendPositive ? AppColors.success : AppColors.error,
                   size: 14,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   trend!,
-                  style: AppTextStyles.trend.copyWith(
-                    color: const Color(0xFF22C55E),
+                  style: TextStyle(
+                    color:
+                        isTrendPositive ? AppColors.greenGlow : AppColors.roseGlow,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -87,8 +95,8 @@ class SummaryCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   subtitle,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textHint,
+                  style: const TextStyle(
+                    color: AppColors.darkTextMuted,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -98,8 +106,8 @@ class SummaryCard extends StatelessWidget {
           else
             Text(
               subtitle,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textHint,
+              style: const TextStyle(
+                color: AppColors.darkTextMuted,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),

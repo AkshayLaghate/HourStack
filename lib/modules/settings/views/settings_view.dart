@@ -9,7 +9,7 @@ class SettingsView extends GetView<SettingsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.darkBg,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(48.0),
         child: Column(
@@ -42,14 +42,18 @@ class SettingsView extends GetView<SettingsController> {
           'Settings',
           style: TextStyle(
             fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w800,
+            color: AppColors.darkTextPrimary,
+            letterSpacing: -1,
           ),
         ),
         SizedBox(height: 8),
         Text(
           'Manage your account, preferences, and tracking behavior.',
-          style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+          style: TextStyle(
+            fontSize: 15,
+            color: AppColors.darkTextSecondary,
+          ),
         ),
       ],
     );
@@ -60,9 +64,9 @@ class SettingsView extends GetView<SettingsController> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,8 +75,8 @@ class SettingsView extends GetView<SettingsController> {
             title,
             style: const TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              color: AppColors.darkTextPrimary,
             ),
           ),
           const SizedBox(height: 24),
@@ -93,7 +97,7 @@ class SettingsView extends GetView<SettingsController> {
               Obx(
                 () => CircleAvatar(
                   radius: 40,
-                  backgroundColor: Colors.orange.shade100,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                   backgroundImage: controller.photoUrl.value != null
                       ? NetworkImage(controller.photoUrl.value!)
                       : const NetworkImage('https://i.pravatar.cc/150?u=a'),
@@ -105,7 +109,7 @@ class SettingsView extends GetView<SettingsController> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                            color: AppColors.primaryGlow,
                           ),
                         )
                       : null,
@@ -221,14 +225,14 @@ class SettingsView extends GetView<SettingsController> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: AppColors.darkTextPrimary,
                     ),
                   ),
                   Text(
                     'Automatically stop active timers at the end of the workday.',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: AppColors.darkTextSecondary,
                     ),
                   ),
                 ],
@@ -237,7 +241,10 @@ class SettingsView extends GetView<SettingsController> {
                 () => Switch(
                   value: controller.autoStopTimers.value,
                   onChanged: (v) => controller.autoStopTimers.value = v,
-                  activeThumbColor: AppColors.primary,
+                  activeTrackColor: AppColors.primary,
+                  activeThumbColor: Colors.white,
+                  inactiveThumbColor: AppColors.darkTextSecondary,
+                  inactiveTrackColor: AppColors.darkBorder,
                 ),
               ),
             ],
@@ -281,8 +288,8 @@ class SettingsView extends GetView<SettingsController> {
           _buildActionButton(
             label: 'Delete Account',
             icon: Icons.delete_outline,
-            color: AppColors.error,
-            backgroundColor: AppColors.errorLight,
+            color: AppColors.roseGlow,
+            backgroundColor: AppColors.error.withValues(alpha: 0.1),
             onPressed: controller.deleteAccount,
           ),
         ],
@@ -299,7 +306,7 @@ class SettingsView extends GetView<SettingsController> {
           child: const Text(
             'Cancel',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: AppColors.darkTextSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -318,7 +325,7 @@ class SettingsView extends GetView<SettingsController> {
           ),
           child: const Text(
             'Save Changes',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -340,16 +347,16 @@ class SettingsView extends GetView<SettingsController> {
             Text(
               label,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: AppColors.darkTextSecondary,
               ),
             ),
             if (!enabled)
               const Icon(
                 Icons.lock_outline,
                 size: 14,
-                color: AppColors.textSecondary,
+                color: AppColors.darkTextMuted,
               ),
           ],
         ),
@@ -358,18 +365,38 @@ class SettingsView extends GetView<SettingsController> {
           initialValue: initialValue,
           onChanged: onChanged,
           enabled: enabled,
+          style: const TextStyle(
+            color: AppColors.darkTextPrimary,
+            fontSize: 14,
+          ),
+          cursorColor: AppColors.primaryGlow,
           decoration: InputDecoration(
             filled: true,
             fillColor: enabled
-                ? AppColors.divider
-                : AppColors.divider.withValues(alpha: 0.5),
+                ? AppColors.loginDarkInputBg
+                : AppColors.loginDarkInputBg.withValues(alpha: 0.5),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.loginDarkInputBorder),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.loginDarkInputBorder),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.loginDarkInputBorder),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 1.5,
+              ),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 12,
+              vertical: 14,
             ),
           ),
         ),
@@ -388,9 +415,9 @@ class SettingsView extends GetView<SettingsController> {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: AppColors.darkTextSecondary,
           ),
         ),
         const SizedBox(height: 8),
@@ -398,13 +425,23 @@ class SettingsView extends GetView<SettingsController> {
           () => Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: AppColors.divider,
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.loginDarkInputBg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.loginDarkInputBorder),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: value.value,
                 isExpanded: true,
+                dropdownColor: AppColors.darkCard,
+                style: const TextStyle(
+                  color: AppColors.darkTextPrimary,
+                  fontSize: 14,
+                ),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.darkTextSecondary,
+                ),
                 items: items.map((String item) {
                   return DropdownMenuItem<String>(
                     value: item,
@@ -426,8 +463,8 @@ class SettingsView extends GetView<SettingsController> {
     required String label,
     required IconData icon,
     required VoidCallback onPressed,
-    Color color = AppColors.textPrimary,
-    Color backgroundColor = AppColors.divider,
+    Color color = AppColors.darkTextPrimary,
+    Color backgroundColor = AppColors.darkSurface,
   }) {
     return ElevatedButton.icon(
       onPressed: onPressed,
@@ -440,7 +477,12 @@ class SettingsView extends GetView<SettingsController> {
         backgroundColor: backgroundColor,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: AppColors.darkBorder.withValues(alpha: 0.3),
+          ),
+        ),
       ),
     );
   }

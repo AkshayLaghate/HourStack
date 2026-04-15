@@ -59,8 +59,8 @@ class CalendarGrid extends GetView<CalendarController> {
                     day,
                     style: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textHint,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkTextMuted,
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -78,6 +78,7 @@ class CalendarGrid extends GetView<CalendarController> {
           controller.selectedDay.value != null &&
           DateUtils.isSameDay(controller.selectedDay.value!, day);
       final isCurrentMonth = day.month == controller.focusedDay.value.month;
+      final isToday = DateUtils.isSameDay(DateTime.now(), day);
       final totalHours = controller.getTotalHoursForDay(day);
       final totalRevenue = controller.getTotalRevenueForDay(day);
 
@@ -86,22 +87,39 @@ class CalendarGrid extends GetView<CalendarController> {
         child: Container(
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.primaryLight.withOpacity(0.5)
-                : AppColors.card,
-            border: Border.all(color: AppColors.divider.withOpacity(0.5)),
+                ? AppColors.primary.withValues(alpha: 0.08)
+                : AppColors.darkSurface,
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.darkDivider.withValues(alpha: 0.5),
+            ),
           ),
           padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${day.day}',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: isCurrentMonth
-                      ? AppColors.textPrimary
-                      : AppColors.textHint,
+              Container(
+                width: 28,
+                height: 28,
+                decoration: isToday
+                    ? BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(8),
+                      )
+                    : null,
+                alignment: Alignment.center,
+                child: Text(
+                  '${day.day}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+                    color: isToday
+                        ? Colors.white
+                        : isCurrentMonth
+                            ? AppColors.darkTextPrimary
+                            : AppColors.darkTextMuted,
+                  ),
                 ),
               ),
               const Spacer(),
@@ -110,15 +128,15 @@ class CalendarGrid extends GetView<CalendarController> {
                   totalHours.toDurationString(),
                   style: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryGlow,
                   ),
                 ),
                 Text(
                   totalRevenue.toCurrency(),
                   style: const TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: AppColors.darkTextSecondary,
                   ),
                 ),
               ],
@@ -131,13 +149,9 @@ class CalendarGrid extends GetView<CalendarController> {
 
   List<DateTime> _generateDaysForMonth(DateTime focusedDay) {
     final firstDayOfMonth = DateTime(focusedDay.year, focusedDay.month, 1);
-
-    // Calculate days before the month to align with Monday
     final daysBefore = (firstDayOfMonth.weekday - 1) % 7;
     final startDate = firstDayOfMonth.subtract(Duration(days: daysBefore));
-
-    // Calculate days after the month to fill the 6-week grid
-    final totalDays = 42; // standard 6-week grid
+    final totalDays = 42;
     return List.generate(
       totalDays,
       (index) => startDate.add(Duration(days: index)),

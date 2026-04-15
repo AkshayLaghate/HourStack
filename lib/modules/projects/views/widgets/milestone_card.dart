@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 
 class MilestoneCard extends StatelessWidget {
   final double progress;
@@ -19,34 +18,35 @@ class MilestoneCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.01),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.star_rounded,
-                color: Color(0xFFF59E0B),
-                size: 24,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.star_rounded,
+                  color: AppColors.amberGlow,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   nextMilestone,
-                  style: AppTextStyles.h3.copyWith(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
+                    color: AppColors.darkTextPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -56,8 +56,8 @@ class MilestoneCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             description,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+            style: const TextStyle(
+              color: AppColors.darkTextSecondary,
               height: 1.5,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -67,20 +67,21 @@ class MilestoneCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'PROGRESS',
-                style: AppTextStyles.labelLarge.copyWith(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,
-                  color: AppColors.textHint,
+                  color: AppColors.darkTextMuted,
                 ),
               ),
               Text(
                 '${(progress * 100).toInt()}%',
-                style: AppTextStyles.h3.copyWith(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
+                  color: AppColors.amberGlow,
                 ),
               ),
             ],
@@ -90,9 +91,9 @@ class MilestoneCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: const Color(0xFFF1F5F9),
+              backgroundColor: AppColors.darkBorder.withValues(alpha: 0.4),
               valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFFF59E0B),
+                AppColors.warning,
               ),
               minHeight: 10,
             ),

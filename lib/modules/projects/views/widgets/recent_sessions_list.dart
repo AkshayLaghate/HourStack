@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 
 class RecentSessionsList extends StatelessWidget {
   final List<SessionItem> sessions;
@@ -15,12 +14,23 @@ class RecentSessionsList extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Recent Sessions', style: AppTextStyles.h2),
+            const Text(
+              'Recent Sessions',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkTextPrimary,
+                letterSpacing: -0.5,
+              ),
+            ),
             TextButton(
               onPressed: () {},
               child: const Text(
                 'View all',
-                style: TextStyle(color: AppColors.primary),
+                style: TextStyle(
+                  color: AppColors.primaryGlow,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -36,26 +46,19 @@ class RecentSessionsList extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.01),
-            blurRadius: 30,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(session.icon, color: const Color(0xFF475569), size: 20),
+            child: Icon(session.icon, color: AppColors.primaryGlow, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -64,9 +67,9 @@ class RecentSessionsList extends StatelessWidget {
               children: [
                 Text(
                   session.title,
-                  style: AppTextStyles.h3.copyWith(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: AppColors.darkTextPrimary,
                     fontSize: 15,
                   ),
                 ),
@@ -75,8 +78,9 @@ class RecentSessionsList extends StatelessWidget {
                   children: [
                     Text(
                       session.date,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: const Color(0xFF64748B),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.darkTextSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -85,15 +89,16 @@ class RecentSessionsList extends StatelessWidget {
                       width: 4,
                       height: 4,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFE2E8F0),
+                        color: AppColors.darkBorder,
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       session.timeRange,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: const Color(0xFF64748B),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.darkTextSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -104,16 +109,16 @@ class RecentSessionsList extends StatelessWidget {
           ),
           Text(
             '${session.duration} hrs',
-            style: AppTextStyles.bodyMedium.copyWith(
+            style: const TextStyle(
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: AppColors.darkTextPrimary,
               fontSize: 16,
             ),
           ),
           const SizedBox(width: 16),
           const Icon(
             Icons.more_vert_rounded,
-            color: Color(0xFF94A3B8),
+            color: AppColors.darkTextMuted,
             size: 20,
           ),
         ],

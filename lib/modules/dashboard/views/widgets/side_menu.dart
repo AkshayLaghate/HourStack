@@ -11,20 +11,29 @@ class SideMenu extends StatelessWidget {
     final controller = Get.find<MainController>();
 
     return Container(
-      width: 280,
-      color: AppColors.sidebar,
+      width: 272,
+      decoration: BoxDecoration(
+        color: AppColors.darkSidebar,
+        border: Border(
+          right: BorderSide(
+            color: AppColors.darkBorderSubtle.withValues(alpha: 0.6),
+          ),
+        ),
+      ),
       child: Column(
         children: [
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           _buildLogo(),
-          const SizedBox(height: 48),
+          const SizedBox(height: 36),
           Expanded(
             child: Obx(
               () => ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
                 children: [
+                  _buildSectionLabel('MAIN'),
+                  const SizedBox(height: 8),
                   _MenuItem(
-                    icon: Icons.dashboard_rounded,
+                    icon: Icons.grid_view_rounded,
                     title: 'Dashboard',
                     isActive: controller.selectedIndex == 0,
                     onTap: () => controller.changeIndex(0),
@@ -41,6 +50,9 @@ class SideMenu extends StatelessWidget {
                     isActive: controller.selectedIndex == 2,
                     onTap: () => controller.changeIndex(2),
                   ),
+                  const SizedBox(height: 20),
+                  _buildSectionLabel('ANALYTICS'),
+                  const SizedBox(height: 8),
                   _MenuItem(
                     icon: Icons.bar_chart_rounded,
                     title: 'Reports',
@@ -58,46 +70,77 @@ class SideMenu extends StatelessWidget {
             ),
           ),
           _buildNewEntryButton(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           _buildUserProfile(),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 14, bottom: 2),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: AppColors.darkTextMuted.withValues(alpha: 0.7),
+          letterSpacing: 1.4,
+        ),
       ),
     );
   }
 
   Widget _buildLogo() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 22),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(12),
+              gradient: const LinearGradient(
+                colors: [AppColors.primary, AppColors.primaryGlow],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(11),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.35),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: const Icon(
-              Icons.timer_rounded,
+              Icons.timer_outlined,
               color: Colors.white,
-              size: 24,
+              size: 20,
             ),
           ),
           const SizedBox(width: 12),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'HourStack',
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkTextPrimary,
+                  letterSpacing: -0.3,
                 ),
               ),
               Text(
                 'Freelance Tracker',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.darkTextMuted,
+                  letterSpacing: 0.2,
+                ),
               ),
             ],
           ),
@@ -108,21 +151,21 @@ class SideMenu extends StatelessWidget {
 
   Widget _buildNewEntryButton() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
       child: Container(
         width: double.infinity,
-        height: 48,
+        height: 44,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(11),
           gradient: const LinearGradient(
-            colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
+            colors: [AppColors.primary, Color(0xFF4F46E5)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF6366F1).withOpacity(0.3),
-              blurRadius: 12,
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 14,
               offset: const Offset(0, 4),
             ),
           ],
@@ -131,17 +174,19 @@ class SideMenu extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () {},
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(11),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                Icon(Icons.add_rounded, color: Colors.white, size: 18),
                 SizedBox(width: 8),
                 Text(
                   'New Time Entry',
                   style: TextStyle(
                     color: Colors.white,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
+                    letterSpacing: 0.1,
                   ),
                 ),
               ],
@@ -154,54 +199,76 @@ class SideMenu extends StatelessWidget {
 
   Widget _buildUserProfile() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(horizontal: 18),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: AppColors.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.darkBorderSubtle.withValues(alpha: 0.4),
+        ),
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: const NetworkImage(
-              'https://i.pravatar.cc/150?u=alex',
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.7),
+                  AppColors.primaryGlow.withValues(alpha: 0.5),
+                ],
+              ),
+              shape: BoxShape.circle,
             ),
-            onBackgroundImageError: (exception, stackTrace) {},
-            child: const Icon(Icons.person_outline, size: 20),
+            child: const Center(
+              child: Text(
+                'A',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
+          const SizedBox(width: 10),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                const Text(
                   'Alex Morgan',
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkTextPrimary,
                   ),
                 ),
                 Text(
                   'Pro Plan',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                    color: AppColors.darkTextMuted,
                   ),
                 ),
               ],
             ),
           ),
-          Icon(Icons.more_vert_rounded, color: AppColors.textHint, size: 20),
+          Icon(
+            Icons.more_horiz_rounded,
+            color: AppColors.darkTextMuted,
+            size: 18,
+          ),
         ],
       ),
     );
   }
 }
 
-class _MenuItem extends StatelessWidget {
+class _MenuItem extends StatefulWidget {
   final IconData icon;
   final String title;
   final bool isActive;
@@ -215,27 +282,95 @@ class _MenuItem extends StatelessWidget {
   });
 
   @override
+  State<_MenuItem> createState() => _MenuItemState();
+}
+
+class _MenuItemState extends State<_MenuItem> {
+  bool _hovering = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: isActive ? AppColors.primaryLight : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        leading: Icon(
-          icon,
-          color: isActive ? AppColors.primary : AppColors.textSecondary,
-          size: 20,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isActive ? AppColors.primary : AppColors.textSecondary,
-            fontSize: 14,
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+    final isHighlighted = widget.isActive || _hovering;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovering = true),
+        onExit: (_) => setState(() => _hovering = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            color: widget.isActive
+                ? AppColors.darkSidebarActive
+                : (_hovering
+                    ? AppColors.darkCard.withValues(alpha: 0.4)
+                    : Colors.transparent),
+            borderRadius: BorderRadius.circular(10),
+            border: widget.isActive
+                ? Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  )
+                : null,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onTap,
+              borderRadius: BorderRadius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      widget.icon,
+                      color: widget.isActive
+                          ? AppColors.primaryGlow
+                          : (isHighlighted
+                              ? AppColors.darkTextPrimary
+                              : AppColors.darkTextSecondary),
+                      size: 19,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        color: widget.isActive
+                            ? AppColors.primaryGlow
+                            : (isHighlighted
+                                ? AppColors.darkTextPrimary
+                                : AppColors.darkTextSecondary),
+                        fontSize: 13,
+                        fontWeight: widget.isActive
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                    if (widget.isActive) ...[
+                      const Spacer(),
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGlow,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryGlow.withValues(alpha: 0.5),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

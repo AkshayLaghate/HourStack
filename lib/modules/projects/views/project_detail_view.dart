@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/project_model.dart';
 import '../../../app/theme/app_colors.dart';
-import '../../../app/theme/app_text_styles.dart';
 import '../controllers/project_controller.dart';
 import 'widgets/summary_card.dart';
 import 'widgets/recent_sessions_list.dart';
@@ -48,7 +47,7 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.darkBg,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _buildTopHeader(widget.project)),
@@ -60,7 +59,12 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
 
   Widget _buildTopHeader(ProjectModel project) {
     return Container(
-      color: Colors.white,
+      decoration: const BoxDecoration(
+        color: AppColors.darkSurface,
+        border: Border(
+          bottom: BorderSide(color: AppColors.darkDivider),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -74,10 +78,11 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                     InkWell(
                       onTap: () =>
                           Get.find<ProjectController>().selectProject(null),
-                      child: Text(
+                      child: const Text(
                         'Projects',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.darkTextSecondary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -86,13 +91,14 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                     const Icon(
                       Icons.chevron_right_rounded,
                       size: 16,
-                      color: AppColors.textHint,
+                      color: AppColors.darkTextMuted,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       project.name,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.darkTextSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -108,10 +114,11 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                         children: [
                           Text(
                             project.name,
-                            style: AppTextStyles.h1.copyWith(
+                            style: const TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -1,
+                              color: AppColors.darkTextPrimary,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -119,8 +126,9 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                           if (project.clientName.isNotEmpty)
                             Text(
                               'Client: ${project.clientName}',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textSecondary,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.darkTextSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -136,9 +144,9 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                           icon: const Icon(Icons.edit_outlined, size: 18),
                           label: const Text('Edit Project'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.textPrimary,
+                            foregroundColor: AppColors.darkTextPrimary,
                             side: const BorderSide(
-                              color: AppColors.border,
+                              color: AppColors.darkBorder,
                               width: 1.5,
                             ),
                             padding: const EdgeInsets.symmetric(
@@ -148,7 +156,7 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            textStyle: AppTextStyles.labelLarge.copyWith(
+                            textStyle: const TextStyle(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -169,9 +177,8 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
                               borderRadius: BorderRadius.circular(12),
                             ),
                             elevation: 0,
-                            textStyle: AppTextStyles.labelLarge.copyWith(
+                            textStyle: const TextStyle(
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -236,8 +243,9 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
       height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 40),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppColors.divider, width: 2)),
+        border: Border(
+          bottom: BorderSide(color: AppColors.darkDivider, width: 2),
+        ),
       ),
       child: TabBar(
         controller: _tabController,
@@ -245,10 +253,14 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
         indicatorColor: AppColors.primary,
         indicatorWeight: 3,
         indicatorSize: TabBarIndicatorSize.tab,
-        labelColor: AppColors.primary,
-        unselectedLabelColor: AppColors.textSecondary,
-        labelStyle: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w700),
-        unselectedLabelStyle: AppTextStyles.bodyMedium.copyWith(
+        labelColor: AppColors.primaryGlow,
+        unselectedLabelColor: AppColors.darkTextSecondary,
+        labelStyle: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
         tabs: const [
@@ -268,7 +280,7 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
         return SliverFillRemaining(
           hasScrollBody: true,
           child: Padding(
-            padding: EdgeInsets.only(top: 16, left: 40),
+            padding: const EdgeInsets.only(top: 16, left: 40),
             child: KanbanBoardView(project: project),
           ),
         );
@@ -292,37 +304,27 @@ class _ProjectDetailViewState extends State<ProjectDetailView>
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left Column: Recent Sessions
               Expanded(
                 flex: 2,
-                child: RecentSessionsList(
-                  sessions: [
-                    SessionItem(
-                      title: 'Homepage Wireframes',
-                      date: 'Oct 24, 2023',
-                      timeRange: '09:00 AM - 12:30 PM',
-                      duration: 3.5,
-                      icon: Icons.calendar_today_rounded,
-                    ),
-                    SessionItem(
-                      title: 'Design System Updates',
-                      date: 'Oct 23, 2023',
-                      timeRange: '02:00 PM - 04:45 PM',
-                      duration: 2.75,
-                      icon: Icons.architecture_rounded,
-                    ),
-                    SessionItem(
-                      title: 'Checkout Bug Fixing',
-                      date: 'Oct 22, 2023',
-                      timeRange: '10:00 AM - 01:00 PM',
-                      duration: 3.0,
-                      icon: Icons.bug_report_rounded,
-                    ),
-                  ],
-                ),
+                child: Obx(() {
+                  final controller = Get.find<ProjectController>();
+                  final sessions = controller.recentSessions
+                      .take(5)
+                      .map((session) => SessionItem(
+                            title: controller.getSessionTitle(session),
+                            date: DateFormat('MMM dd, yyyy')
+                                .format(session.startTime),
+                            timeRange: session.endTime != null
+                                ? '${DateFormat('hh:mm a').format(session.startTime)} - ${DateFormat('hh:mm a').format(session.endTime!)}'
+                                : '${DateFormat('hh:mm a').format(session.startTime)} - In Progress',
+                            duration: session.durationMinutes / 60.0,
+                            icon: Icons.access_time_rounded,
+                          ))
+                      .toList();
+                  return RecentSessionsList(sessions: sessions);
+                }),
               ),
               const SizedBox(width: 48),
-              // Right Column: Stats & Milestones
               Expanded(
                 flex: 1,
                 child: Column(

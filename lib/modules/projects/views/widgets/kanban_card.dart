@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 import '../../../../data/models/task_model.dart';
 
 class KanbanCard extends StatelessWidget {
@@ -34,15 +33,19 @@ class KanbanCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isRecording ? AppColors.primary : AppColors.border,
+          color: isRecording
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : AppColors.darkBorder.withValues(alpha: 0.4),
           width: isRecording ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDragging ? 0.08 : 0.04),
+            color: isRecording
+                ? AppColors.primary.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: isDragging ? 0.2 : 0.1),
             blurRadius: isDragging ? 15 : 10,
             offset: Offset(0, isDragging ? 8 : 4),
           ),
@@ -50,10 +53,10 @@ class KanbanCard extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -70,7 +73,7 @@ class KanbanCard extends StatelessWidget {
                         onPressed: onPlayPressed,
                         icon: const Icon(
                           Icons.play_circle_outline_rounded,
-                          color: AppColors.textHint,
+                          color: AppColors.darkTextMuted,
                           size: 24,
                         ),
                         padding: EdgeInsets.zero,
@@ -81,14 +84,19 @@ class KanbanCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   task.title,
-                  style: AppTextStyles.h3.copyWith(fontSize: 18),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkTextPrimary,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   task.description,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                  style: const TextStyle(
+                    color: AppColors.darkTextSecondary,
                     height: 1.5,
+                    fontSize: 13,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -102,14 +110,15 @@ class KanbanCard extends StatelessWidget {
                         const Icon(
                           Icons.access_time_rounded,
                           size: 16,
-                          color: AppColors.primary,
+                          color: AppColors.primaryGlow,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           '${(task.trackedMinutes / 60).toStringAsFixed(1)}h / ${task.estimatedHours}h',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textPrimary,
+                          style: const TextStyle(
+                            color: AppColors.darkTextPrimary,
                             fontWeight: FontWeight.w600,
+                            fontSize: 13,
                           ),
                         ),
                       ],
@@ -129,21 +138,21 @@ class KanbanCard extends StatelessWidget {
     String label = task.status == TaskStatus.done
         ? 'COMPLETED'
         : task.priority.name.toUpperCase();
-    Color bgColor = _getPriorityColor(task);
-    Color textColor = bgColor.withValues(alpha: 0.8);
+    Color bgColor;
+    Color textColor;
 
     if (task.status == TaskStatus.done) {
-      bgColor = const Color(0xFFE8F5E9);
-      textColor = const Color(0xFF2E7D32);
+      bgColor = AppColors.success.withValues(alpha: 0.12);
+      textColor = AppColors.greenGlow;
     } else if (task.priority == TaskPriority.high) {
-      bgColor = const Color(0xFFFFF1F0);
-      textColor = const Color(0xFFF5222D);
+      bgColor = AppColors.error.withValues(alpha: 0.12);
+      textColor = AppColors.roseGlow;
     } else if (task.priority == TaskPriority.medium) {
-      bgColor = const Color(0xFFF0F5FF);
-      textColor = const Color(0xFF2F54EB);
+      bgColor = AppColors.primary.withValues(alpha: 0.12);
+      textColor = AppColors.primaryGlow;
     } else {
-      bgColor = AppColors.background;
-      textColor = AppColors.textSecondary;
+      bgColor = AppColors.darkBorder.withValues(alpha: 0.3);
+      textColor = AppColors.darkTextSecondary;
     }
 
     return Container(
@@ -154,7 +163,7 @@ class KanbanCard extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTextStyles.bodySmall.copyWith(
+        style: TextStyle(
           color: textColor,
           fontWeight: FontWeight.w700,
           fontSize: 10,
@@ -167,10 +176,10 @@ class KanbanCard extends StatelessWidget {
   Widget _buildRecordingIndicator() {
     return Row(
       children: [
-        Text(
+        const Text(
           'RECORDING',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.primary,
+          style: TextStyle(
+            color: AppColors.primaryGlow,
             fontWeight: FontWeight.w800,
             fontSize: 10,
           ),
@@ -189,26 +198,15 @@ class KanbanCard extends StatelessWidget {
     return Container(
       width: 24,
       height: 24,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.background,
+        color: AppColors.darkBorder.withValues(alpha: 0.3),
       ),
       child: const Icon(
         Icons.person_outline,
         size: 14,
-        color: AppColors.textSecondary,
+        color: AppColors.darkTextMuted,
       ),
     );
-  }
-
-  Color _getPriorityColor(TaskModel task) {
-    switch (task.priority) {
-      case TaskPriority.high:
-        return const Color(0xFFF5222D);
-      case TaskPriority.medium:
-        return const Color(0xFF2F54EB);
-      case TaskPriority.low:
-        return const Color(0xFF52C41A);
-    }
   }
 }

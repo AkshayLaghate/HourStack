@@ -1,19 +1,25 @@
 import 'package:get/get.dart';
 import '../../../data/models/project_model.dart';
+import '../../../data/models/session_model.dart';
+import '../../../data/models/task_model.dart';
 import '../../../data/repositories/project_repository.dart';
 import '../../../data/repositories/session_repository.dart';
+import '../../../data/repositories/task_repository.dart';
 import '../../../app/utils/constants.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProjectController extends GetxController {
   final ProjectRepository _repository;
   final SessionRepository _sessionRepository;
+  final TaskRepository _taskRepository;
 
   ProjectController({
     ProjectRepository? repository,
     SessionRepository? sessionRepository,
+    TaskRepository? taskRepository,
   }) : _repository = repository ?? Get.find<ProjectRepository>(),
-       _sessionRepository = sessionRepository ?? Get.find<SessionRepository>();
+       _sessionRepository = sessionRepository ?? Get.find<SessionRepository>(),
+       _taskRepository = taskRepository ?? Get.find<TaskRepository>();
 
   final RxList<ProjectModel> projects = <ProjectModel>[].obs;
   final RxList<String> clients = <String>[].obs;
@@ -21,12 +27,52 @@ class ProjectController extends GetxController {
   final Rxn<ProjectModel> selectedProject = Rxn<ProjectModel>();
   final Rxn<XFile> selectedCoverImage = Rxn<XFile>();
   final _picker = ImagePicker();
+  final RxList<SessionModel> recentSessions = <SessionModel>[].obs;
+  final RxMap<String, String> taskNamesCache = <String, String>{}.obs;
 
   void selectProject(ProjectModel? project) {
     selectedProject.value = project;
     if (project != null) {
       _updateProjectHistoricalStats(project);
+      _fetchRecentSessions(project);
+    } else {
+      recentSessions.clear();
     }
+  }
+
+  Future<void> _fetchRecentSessions(ProjectModel project) async {
+    try {
+      final now = DateTime.now();
+      final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+      final sessions = await _sessionRepository
+          .getSessionsForRangeStream(thirtyDaysAgo, now)
+          .first;
+      final projectSessions = sessions
+          .where((s) => s.projectId == project.id && s.endTime != null)
+          .toList();
+      recentSessions.value = projectSessions;
+
+      // Fetch task names for sessions that have a taskId
+      final taskIds = projectSessions
+          .where((s) => s.taskId != null && !taskNamesCache.containsKey(s.taskId))
+          .map((s) => s.taskId!)
+          .toSet();
+      if (taskIds.isNotEmpty) {
+        final tasks = await _taskRepository.getTasksStream(project.id).first;
+        for (var task in tasks) {
+          taskNamesCache[task.id] = task.title;
+        }
+      }
+    } catch (e) {
+      // Silently fail — UI will show empty state
+    }
+  }
+
+  String getSessionTitle(SessionModel session) {
+    if (session.taskId != null && taskNamesCache.containsKey(session.taskId)) {
+      return taskNamesCache[session.taskId]!;
+    }
+    return 'Work Session';
   }
 
   Future<void> _updateProjectHistoricalStats(ProjectModel project) async {

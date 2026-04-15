@@ -14,7 +14,7 @@ class CalendarView extends GetView<CalendarController> {
     final isDesktop = MediaQuery.of(context).size.width > 1200;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.darkBg,
       body: Column(
         children: [
           const CalendarHeader(),
@@ -33,18 +33,17 @@ class CalendarView extends GetView<CalendarController> {
           ),
         ],
       ),
-      // For mobile, we could show the sidebar as a bottom sheet or drawer
       floatingActionButton: !isDesktop
           ? FloatingActionButton(
               onPressed: () {
                 Get.bottomSheet(
                   const DayDetailSidebar(),
-                  backgroundColor: AppColors.sidebar,
+                  backgroundColor: AppColors.darkSurface,
                   isScrollControlled: true,
                 );
               },
               backgroundColor: AppColors.primary,
-              child: const Icon(Icons.list_alt),
+              child: const Icon(Icons.list_alt, color: Colors.white),
             )
           : null,
     );

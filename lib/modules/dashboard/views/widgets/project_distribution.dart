@@ -13,26 +13,37 @@ class ProjectDistribution extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.darkBorderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Project Distribution', style: AppTextStyles.h3),
+          const Text('Project Distribution', style: AppTextStyles.darkH3),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Time allocated per project',
-            style: AppTextStyles.bodyMedium,
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.darkTextMuted,
+            ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           Obx(() {
             final pDist = controller.projectDistribution;
             if (pDist.isEmpty) {
-              return const SizedBox(
+              return SizedBox(
                 height: 200,
-                child: Center(child: Text('No project data')),
+                child: Center(
+                  child: Text(
+                    'No project data',
+                    style: TextStyle(
+                      color: AppColors.darkTextMuted,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               );
             }
 
@@ -45,10 +56,10 @@ class ProjectDistribution extends GetView<DashboardController> {
 
             final List<PieChartSectionData> sections = [];
             final colors = [
-              AppColors.primary,
-              const Color(0xFF0EA5E9),
-              const Color(0xFFA5B4FC),
-              AppColors.border,
+              AppColors.primaryGlow,
+              AppColors.blueGlow,
+              const Color(0xFFA78BFA),
+              AppColors.darkBorder,
             ];
 
             final legendItems = <Widget>[];
@@ -63,17 +74,15 @@ class ProjectDistribution extends GetView<DashboardController> {
                 sections.add(
                   PieChartSectionData(
                     color: colors[i],
-                    value: totalHours > 0
-                        ? entry.value
-                        : 1, // Draw equal slices if no hours
+                    value: totalHours > 0 ? entry.value : 1,
                     title: '',
-                    radius: 25,
+                    radius: 22,
                   ),
                 );
                 legendItems.add(
                   _buildLegendItem(entry.key.name, '$pct%', colors[i]),
                 );
-                legendItems.add(const SizedBox(height: 12));
+                legendItems.add(const SizedBox(height: 10));
               } else {
                 othersSum += entry.value;
               }
@@ -86,16 +95,14 @@ class ProjectDistribution extends GetView<DashboardController> {
               sections.add(
                 PieChartSectionData(
                   color: colors[3],
-                  value: totalHours > 0
-                      ? othersSum
-                      : 1, // Draw others slice if no hours
+                  value: totalHours > 0 ? othersSum : 1,
                   title: '',
-                  radius: 25,
+                  radius: 22,
                 ),
               );
               legendItems.add(_buildLegendItem('Others', '$pct%', colors[3]));
             } else if (legendItems.isNotEmpty) {
-              legendItems.removeLast(); // remove last SizedBox
+              legendItems.removeLast();
             }
 
             return Column(
@@ -107,8 +114,8 @@ class ProjectDistribution extends GetView<DashboardController> {
                     children: [
                       PieChart(
                         PieChartData(
-                          sectionsSpace: 0,
-                          centerSpaceRadius: 60,
+                          sectionsSpace: 2,
+                          centerSpaceRadius: 55,
                           startDegreeOffset: -90,
                           sections: sections,
                         ),
@@ -118,18 +125,26 @@ class ProjectDistribution extends GetView<DashboardController> {
                         children: [
                           Text(
                             '${controller.activeProjectsCount}',
-                            style: AppTextStyles.h2.copyWith(fontSize: 24),
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.darkTextPrimary,
+                              letterSpacing: -0.5,
+                            ),
                           ),
-                          const Text(
-                            'Active Projects',
-                            style: AppTextStyles.bodySmall,
+                          Text(
+                            'Active',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.darkTextMuted,
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
                 ...legendItems,
               ],
             );
@@ -145,22 +160,34 @@ class ProjectDistribution extends GetView<DashboardController> {
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.3),
+                blurRadius: 4,
+              ),
+            ],
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textPrimary,
+            style: const TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w500,
+              color: AppColors.darkTextPrimary,
             ),
           ),
         ),
         Text(
           percentage,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.darkTextSecondary,
           ),
         ),
       ],

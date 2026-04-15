@@ -14,9 +14,9 @@ class RecentEntries extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.darkBorderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,12 +24,16 @@ class RecentEntries extends GetView<DashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Recent Entries', style: AppTextStyles.h2),
+              const Text('Recent Entries', style: AppTextStyles.darkH2),
               TextButton(
                 onPressed: () {},
-                child: const Text(
+                child: Text(
                   'View All',
-                  style: TextStyle(color: AppColors.primary),
+                  style: TextStyle(
+                    color: AppColors.primaryGlow,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -38,7 +42,12 @@ class RecentEntries extends GetView<DashboardController> {
           Obx(() {
             if (controller.isLoading.value &&
                 controller.recentSessions.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryGlow,
+                  strokeWidth: 2,
+                ),
+              );
             }
 
             if (controller.recentSessions.isEmpty) {
@@ -71,12 +80,15 @@ class RecentEntries extends GetView<DashboardController> {
                       ).format(session.startTime),
                       category: isBillable ? 'Billable' : 'Non-billable',
                       categoryColor: isBillable
-                          ? AppColors.success
-                          : AppColors.textHint,
+                          ? AppColors.greenGlow
+                          : AppColors.darkTextMuted,
                       time: _formatDuration(session.durationMinutes),
                     ),
                     if (!isLast)
-                      const Divider(height: 1, color: AppColors.divider),
+                      Divider(
+                        height: 1,
+                        color: AppColors.darkDivider,
+                      ),
                   ],
                 );
               }).toList(),
@@ -102,44 +114,72 @@ class RecentEntries extends GetView<DashboardController> {
     required String time,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.08),
+              ),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
+            child: Icon(icon, color: AppColors.primaryGlow, size: 18),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTextStyles.h3),
-                Text(subtitle, style: AppTextStyles.bodySmall),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkTextPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.darkTextMuted,
+                  ),
+                ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: categoryColor.withAlpha((0.1 * 255).toInt()),
+              color: categoryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: categoryColor.withValues(alpha: 0.08),
+              ),
             ),
             child: Text(
               category,
               style: TextStyle(
                 color: categoryColor,
                 fontSize: 10,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          Text(time, style: AppTextStyles.h3.copyWith(fontSize: 14)),
+          const SizedBox(width: 14),
+          Text(
+            time,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.darkTextPrimary,
+              letterSpacing: -0.3,
+            ),
+          ),
         ],
       ),
     );

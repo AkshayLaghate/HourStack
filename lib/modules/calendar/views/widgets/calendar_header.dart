@@ -12,8 +12,8 @@ class CalendarHeader extends GetView<CalendarController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: const BoxDecoration(
-        color: AppColors.sidebar,
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+        color: AppColors.darkSurface,
+        border: Border(bottom: BorderSide(color: AppColors.darkDivider)),
       ),
       child: Row(
         children: [_buildMonthPicker(), const Spacer(), _buildViewSwitcher()],
@@ -49,7 +49,7 @@ class CalendarHeader extends GetView<CalendarController> {
           IconButton(
             icon: const Icon(
               Icons.chevron_left,
-              color: AppColors.textSecondary,
+              color: AppColors.darkTextSecondary,
             ),
             onPressed: controller.previous,
           ),
@@ -58,15 +58,16 @@ class CalendarHeader extends GetView<CalendarController> {
             label,
             style: const TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              color: AppColors.darkTextPrimary,
+              letterSpacing: -0.3,
             ),
           ),
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(
               Icons.chevron_right,
-              color: AppColors.textSecondary,
+              color: AppColors.darkTextSecondary,
             ),
             onPressed: controller.next,
           ),
@@ -79,8 +80,9 @@ class CalendarHeader extends GetView<CalendarController> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.darkBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -100,16 +102,12 @@ class CalendarHeader extends GetView<CalendarController> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.card : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
+            color: isSelected ? AppColors.darkCard : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: isSelected
+                ? Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                  )
                 : null,
           ),
           child: Text(
@@ -118,8 +116,8 @@ class CalendarHeader extends GetView<CalendarController> {
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               color: isSelected
-                  ? AppColors.textPrimary
-                  : AppColors.textSecondary,
+                  ? AppColors.primaryGlow
+                  : AppColors.darkTextSecondary,
             ),
           ),
         ),

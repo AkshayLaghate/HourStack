@@ -14,8 +14,8 @@ class DayDetailSidebar extends GetView<CalendarController> {
     return Container(
       width: 380,
       decoration: const BoxDecoration(
-        color: AppColors.sidebar,
-        border: Border(left: BorderSide(color: AppColors.border)),
+        color: AppColors.darkSurface,
+        border: Border(left: BorderSide(color: AppColors.darkDivider)),
       ),
       child: Obx(() {
         final selectedDay = controller.selectedDay.value!;
@@ -51,8 +51,9 @@ class DayDetailSidebar extends GetView<CalendarController> {
                 DateFormat('MMMM d, yyyy').format(date),
                 style: const TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkTextPrimary,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 4),
@@ -60,13 +61,13 @@ class DayDetailSidebar extends GetView<CalendarController> {
                 '${totalHours.toStringAsFixed(1)} hours tracked',
                 style: const TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: AppColors.darkTextSecondary,
                 ),
               ),
             ],
           ),
           IconButton(
-            icon: const Icon(Icons.close, color: AppColors.textHint),
+            icon: const Icon(Icons.close, color: AppColors.darkTextMuted),
             onPressed: () => controller.selectedDay.value = null,
           ),
         ],
@@ -96,16 +97,9 @@ class DayDetailSidebar extends GetView<CalendarController> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,9 +111,9 @@ class DayDetailSidebar extends GetView<CalendarController> {
                 (project?.name ?? 'Unknown Project').toUpperCase(),
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
-                  color: Color(project?.colorValue ?? AppColors.primary.value),
+                  color: Color(project?.colorValue ?? AppColors.primary.toARGB32()),
                 ),
               ),
               Text(
@@ -127,7 +121,7 @@ class DayDetailSidebar extends GetView<CalendarController> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: AppColors.darkTextPrimary,
                 ),
               ),
             ],
@@ -138,7 +132,7 @@ class DayDetailSidebar extends GetView<CalendarController> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+              color: AppColors.darkTextPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -146,19 +140,22 @@ class DayDetailSidebar extends GetView<CalendarController> {
             children: [
               Text(
                 '$startTimeStr - $endTimeStr',
-                style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.darkTextMuted,
+                ),
               ),
               const Spacer(),
               const Icon(
                 Icons.edit_outlined,
                 size: 16,
-                color: AppColors.textHint,
+                color: AppColors.darkTextMuted,
               ),
               const SizedBox(width: 12),
               const Icon(
                 Icons.delete_outline,
                 size: 16,
-                color: AppColors.textHint,
+                color: AppColors.darkTextMuted,
               ),
             ],
           ),
@@ -172,9 +169,11 @@ class DayDetailSidebar extends GetView<CalendarController> {
       margin: const EdgeInsets.all(24),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.15),
+        ),
       ),
       child: Column(
         children: [
@@ -182,7 +181,7 @@ class DayDetailSidebar extends GetView<CalendarController> {
             'Daily Revenue',
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.primary,
+              color: AppColors.primaryGlow,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -191,8 +190,9 @@ class DayDetailSidebar extends GetView<CalendarController> {
             '\$${totalRevenue.toStringAsFixed(2)}',
             style: const TextStyle(
               fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
+              color: AppColors.darkTextPrimary,
+              letterSpacing: -0.5,
             ),
           ),
         ],
@@ -204,7 +204,7 @@ class DayDetailSidebar extends GetView<CalendarController> {
     return const Center(
       child: Text(
         'No sessions tracked for this day',
-        style: TextStyle(color: AppColors.textHint),
+        style: TextStyle(color: AppColors.darkTextMuted),
       ),
     );
   }

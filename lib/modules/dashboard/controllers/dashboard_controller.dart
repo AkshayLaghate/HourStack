@@ -21,6 +21,17 @@ class DashboardController extends GetxController {
   final upcomingTasksCount = 0.obs;
   final tasksInProgressCount = 0.obs;
 
+  // Trend data
+  final periodHoursTrend = ''.obs;
+  final periodRevenueTrend = ''.obs;
+  final activeProjectsTrend = ''.obs;
+  final monthlyHoursTrend = ''.obs;
+
+  final isPeriodHoursPositive = true.obs;
+  final isPeriodRevenuePositive = true.obs;
+  final isActiveProjectsPositive = true.obs;
+  final isMonthlyHoursPositive = true.obs;
+
   // Date Range
   final rangeType = DateRangeType.day.obs;
   final startDate = DateTime.now().obs;
@@ -37,6 +48,19 @@ class DashboardController extends GetxController {
         return 'Monthly Activity';
       case DateRangeType.custom:
         return 'Custom Range Activity';
+    }
+  }
+
+  String get trendDescription {
+    switch (rangeType.value) {
+      case DateRangeType.day:
+        return 'vs yesterday';
+      case DateRangeType.week:
+        return 'vs last week';
+      case DateRangeType.month:
+        return 'vs last month';
+      case DateRangeType.custom:
+        return 'vs prev period';
     }
   }
 
@@ -62,6 +86,7 @@ class DashboardController extends GetxController {
   final projectDistribution = <ProjectModel, double>{}.obs;
   final activeProjectsCount = 0.obs;
   final heatmapDatasets = <DateTime, int>{}.obs;
+  final heatmapMinutes = <DateTime, int>{}.obs;
 
   @override
   void onInit() {
@@ -189,22 +214,10 @@ class DashboardController extends GetxController {
     final pMap = {for (var p in projects) p.id: p};
     projectMap.value = pMap;
 
-    // Fetch sessions for the range (using a simplified method or custom logic)
-    // For now, we'll fetch month sessions and filter locally as a proxy
-    // ideally we'd have a repository method for range
-    final monthKey = DateFormat('yyyy-MM').format(start);
+    // Fetch current period sessions
     final List<SessionModel> sessions = await _sessionRepo
-        .getSessionsForMonthStream(monthKey)
+        .getSessionsForRangeStream(start, end)
         .first;
-
-    // Also fetch for end month if different
-    final endMonthKey = DateFormat('yyyy-MM').format(end);
-    if (endMonthKey != monthKey) {
-      final List<SessionModel> endSessions = await _sessionRepo
-          .getSessionsForMonthStream(endMonthKey)
-          .first;
-      sessions.addAll(endSessions);
-    }
 
     double pHours = 0;
     double pRevenue = 0;
@@ -217,22 +230,53 @@ class DashboardController extends GetxController {
     }
 
     for (SessionModel session in sessions) {
-      if (session.startTime.isAfter(
-            start.subtract(const Duration(seconds: 1)),
-          ) &&
-          session.startTime.isBefore(end.add(const Duration(seconds: 1)))) {
-        final ProjectModel? project = pMap[session.projectId];
-        final double hours = session.durationMinutes / 60.0;
-        final double revenue = hours * (project?.hourlyRate ?? 0.0);
+      final ProjectModel? project = pMap[session.projectId];
+      final double hours = session.durationMinutes / 60.0;
+      final double revenue = hours * (project?.hourlyRate ?? 0.0);
 
-        pHours += hours;
-        pRevenue += revenue;
+      pHours += hours;
+      pRevenue += revenue;
 
-        if (project != null && hours > 0) {
-          pDist[project] = (pDist[project] ?? 0) + hours;
-        }
+      if (project != null && hours > 0) {
+        pDist[project] = (pDist[project] ?? 0) + hours;
       }
     }
+
+    // Previous Period Calculations
+    final Duration actualDuration = Duration(days: end.difference(start).inDays + 1);
+    DateTime prevStart;
+    DateTime prevEnd;
+
+    if (rangeType.value == DateRangeType.month) {
+      prevStart = DateTime(start.year, start.month - 1, 1);
+      final lastDayPrevMonth = DateTime(start.year, start.month, 0);
+      prevEnd = DateTime(prevStart.year, prevStart.month, lastDayPrevMonth.day, 23, 59, 59, 999);
+    } else {
+      prevStart = start.subtract(actualDuration);
+      prevEnd = end.subtract(actualDuration);
+    }
+
+    final List<SessionModel> prevSessions = await _sessionRepo
+        .getSessionsForRangeStream(prevStart, prevEnd)
+        .first;
+
+    double prevHours = 0;
+    double prevRevenue = 0;
+    final Set<String> prevActiveProjectIds = {};
+
+    for (var session in prevSessions) {
+      final hours = session.durationMinutes / 60.0;
+      prevHours += hours;
+      final project = pMap[session.projectId];
+      prevRevenue += hours * (project?.hourlyRate ?? 0.0);
+      if (hours > 0) prevActiveProjectIds.add(session.projectId);
+    }
+
+    _calculateTrend(pHours, prevHours, periodHoursTrend, isPeriodHoursPositive);
+    _calculateTrend(pRevenue, prevRevenue, periodRevenueTrend, isPeriodRevenuePositive);
+    
+    int currentActive = pDist.values.where((h) => h > 0).length;
+    _calculateTrend(currentActive.toDouble(), prevActiveProjectIds.length.toDouble(), activeProjectsTrend, isActiveProjectsPositive);
 
     sessions.sort((a, b) => b.startTime.compareTo(a.startTime));
     recentSessions.value = sessions.take(5).toList();
@@ -240,10 +284,28 @@ class DashboardController extends GetxController {
     periodTotalHours.value = pHours;
     periodTotalRevenue.value = pRevenue;
     projectDistribution.value = pDist;
-    activeProjectsCount.value = pDist.length;
+    activeProjectsCount.value = currentActive;
 
     // Keep monthly stats as they are (based on current date)
     _loadFixedMonthlyStats(pMap);
+  }
+
+  void _calculateTrend(double current, double previous, RxString trendVar, RxBool isPositiveVar) {
+    if (previous == 0) {
+      if (current > 0) {
+        trendVar.value = '+100%';
+        isPositiveVar.value = true;
+      } else {
+        trendVar.value = '0%';
+        isPositiveVar.value = true;
+      }
+      return;
+    }
+    final diff = current - previous;
+    final percent = (diff / previous) * 100;
+    isPositiveVar.value = percent >= 0;
+    final sign = percent >= 0 ? '+' : '';
+    trendVar.value = '$sign${percent.toStringAsFixed(1)}%';
   }
 
   Future<void> _loadFixedMonthlyStats(Map<String, ProjectModel> pMap) async {
@@ -261,6 +323,21 @@ class DashboardController extends GetxController {
       mHours += hours;
       mRevenue += hours * (project?.hourlyRate ?? 0.0);
     }
+
+    // Prev month
+    final prevMonthStart = DateTime(now.year, now.month - 1, 1);
+    final prevMonthKey = DateFormat('yyyy-MM').format(prevMonthStart);
+    final prevSessions = await _sessionRepo
+        .getSessionsForMonthStream(prevMonthKey)
+        .first;
+    
+    double prevMHours = 0;
+    for (var session in prevSessions) {
+      prevMHours += session.durationMinutes / 60.0;
+    }
+
+    _calculateTrend(mHours, prevMHours, monthlyHoursTrend, isMonthlyHoursPositive);
+
     monthlyHours.value = mHours;
     monthlyRevenue.value = mRevenue;
   }
@@ -386,6 +463,7 @@ class DashboardController extends GetxController {
       scaledHeatmap[entry.key] = intensity;
     }
 
+    heatmapMinutes.value = heatmap;
     heatmapDatasets.value = scaledHeatmap;
   }
 

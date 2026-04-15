@@ -14,9 +14,9 @@ class ActivityChart extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.darkBorderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,12 +24,12 @@ class ActivityChart extends GetView<DashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Obx(() => Text(controller.rangeLabel, style: AppTextStyles.h2)),
+              Obx(() => Text(controller.rangeLabel, style: AppTextStyles.darkH2)),
               Row(
                 children: [
-                  _buildLegendItem('Billable', AppColors.primary),
+                  _buildLegendItem('Billable', AppColors.primaryGlow),
                   const SizedBox(width: 16),
-                  _buildLegendItem('Non-billable', AppColors.textHint),
+                  _buildLegendItem('Non-billable', AppColors.darkTextMuted),
                 ],
               ),
             ],
@@ -37,9 +37,14 @@ class ActivityChart extends GetView<DashboardController> {
           const SizedBox(height: 32),
           Obx(() {
             if (controller.isLoading.value) {
-              return const SizedBox(
+              return SizedBox(
                 height: 200,
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryGlow,
+                    strokeWidth: 2,
+                  ),
+                ),
               );
             }
 
@@ -67,24 +72,34 @@ class ActivityChart extends GetView<DashboardController> {
                   minY: 0,
                   lineTouchData: LineTouchData(
                     touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor: (touchedSpot) => AppColors.card,
+                      getTooltipColor: (_) => AppColors.darkCardHover,
                       tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipBorder: BorderSide(
+                        color: AppColors.darkBorder.withValues(alpha: 0.5),
+                      ),
                       getTooltipItems: (List<LineBarSpot> touchedSpots) {
                         return touchedSpots.map((LineBarSpot touchedSpot) {
-                          final textStyle = TextStyle(
-                            color: touchedSpot.bar.color ?? AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          );
                           return LineTooltipItem(
                             '${touchedSpot.y.toStringAsFixed(1)}h',
-                            textStyle,
+                            TextStyle(
+                              color: touchedSpot.bar.color ?? AppColors.primaryGlow,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           );
                         }).toList();
                       },
                     ),
                   ),
-                  gridData: const FlGridData(show: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: 2,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: AppColors.darkBorderSubtle.withValues(alpha: 0.4),
+                      strokeWidth: 0.5,
+                    ),
+                  ),
                   titlesData: FlTitlesData(
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
@@ -95,7 +110,6 @@ class ActivityChart extends GetView<DashboardController> {
                           final index = value.toInt();
                           final total = controller.chartLabels.length;
 
-                          // If there are many points (like 24 hours), show fewer labels
                           int interval = 1;
                           if (total > 12) {
                             interval = (total / 6).ceil();
@@ -108,7 +122,10 @@ class ActivityChart extends GetView<DashboardController> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 controller.chartLabels[index],
-                                style: AppTextStyles.bodySmall,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.darkTextMuted,
+                                ),
                               ),
                             );
                           }
@@ -136,16 +153,16 @@ class ActivityChart extends GetView<DashboardController> {
                           .toList(),
                       isCurved: true,
                       preventCurveOverShooting: true,
-                      color: AppColors.primary,
-                      barWidth: 3,
+                      color: AppColors.primaryGlow,
+                      barWidth: 2.5,
                       isStrokeCapRound: true,
                       dotData: const FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.primary.withAlpha((0.2 * 255).toInt()),
-                            AppColors.primary.withAlpha(0),
+                            AppColors.primary.withValues(alpha: 0.15),
+                            AppColors.primary.withValues(alpha: 0.0),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -160,8 +177,8 @@ class ActivityChart extends GetView<DashboardController> {
                           .toList(),
                       isCurved: true,
                       preventCurveOverShooting: true,
-                      color: AppColors.textHint.withAlpha((0.3 * 255).toInt()),
-                      barWidth: 2,
+                      color: AppColors.darkTextMuted.withValues(alpha: 0.4),
+                      barWidth: 1.5,
                       isStrokeCapRound: true,
                       dotData: const FlDotData(show: false),
                     ),
@@ -181,10 +198,25 @@ class ActivityChart extends GetView<DashboardController> {
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.3),
+                blurRadius: 4,
+              ),
+            ],
+          ),
         ),
-        const SizedBox(width: 4),
-        Text(label, style: AppTextStyles.bodySmall),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.darkTextSecondary,
+          ),
+        ),
       ],
     );
   }

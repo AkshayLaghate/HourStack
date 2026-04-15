@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/project_controller.dart';
 import '../../../app/theme/app_colors.dart';
-import '../../../app/theme/app_text_styles.dart';
 import '../../../app/widgets/empty_state_widget.dart';
 
 import 'widgets/project_card.dart';
@@ -30,7 +29,11 @@ class ProjectListView extends GetView<ProjectController> {
                 const SizedBox(height: 40),
                 Obx(() {
                   if (controller.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    );
                   }
                   if (controller.projects.isEmpty) {
                     return Column(
@@ -102,23 +105,37 @@ class ProjectListView extends GetView<ProjectController> {
   Widget _buildTopBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-      color: Colors.white,
+      decoration: const BoxDecoration(
+        color: AppColors.darkSurface,
+        border: Border(
+          bottom: BorderSide(color: AppColors.darkDivider),
+        ),
+      ),
       child: Row(
         children: [
           Expanded(
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: AppColors.loginDarkInputBg,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.loginDarkInputBorder),
               ),
               child: const TextField(
+                style: TextStyle(
+                  color: AppColors.darkTextPrimary,
+                  fontSize: 14,
+                ),
+                cursorColor: AppColors.primaryGlow,
                 decoration: InputDecoration(
                   hintText: 'Search projects...',
+                  hintStyle: TextStyle(
+                    color: AppColors.darkTextMuted,
+                  ),
                   prefixIcon: Icon(
                     Icons.search_rounded,
                     size: 20,
-                    color: AppColors.textHint,
+                    color: AppColors.darkTextMuted,
                   ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
@@ -128,8 +145,7 @@ class ProjectListView extends GetView<ProjectController> {
           ),
           const SizedBox(width: 24),
           ElevatedButton.icon(
-            onPressed: () =>
-                Get.dialog(const ProjectFormDialog()), // Trigger Add Project
+            onPressed: () => Get.dialog(const ProjectFormDialog()),
             icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('Add Project'),
             style: ElevatedButton.styleFrom(
@@ -145,9 +161,9 @@ class ProjectListView extends GetView<ProjectController> {
           const SizedBox(width: 24),
           Stack(
             children: [
-              Icon(
+              const Icon(
                 Icons.notifications_none_rounded,
-                color: AppColors.textSecondary,
+                color: AppColors.darkTextSecondary,
               ),
               Positioned(
                 right: 0,
@@ -155,7 +171,7 @@ class ProjectListView extends GetView<ProjectController> {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: const BoxDecoration(
-                    color: Colors.red,
+                    color: AppColors.error,
                     shape: BoxShape.circle,
                   ),
                   constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
@@ -172,11 +188,22 @@ class ProjectListView extends GetView<ProjectController> {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Projects', style: AppTextStyles.h1),
+        Text(
+          'Projects',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            color: AppColors.darkTextPrimary,
+            letterSpacing: -1,
+          ),
+        ),
         SizedBox(height: 8),
         Text(
           'Overview of your active freelance engagements and billable hours.',
-          style: AppTextStyles.bodyMedium,
+          style: TextStyle(
+            fontSize: 15,
+            color: AppColors.darkTextSecondary,
+          ),
         ),
       ],
     );

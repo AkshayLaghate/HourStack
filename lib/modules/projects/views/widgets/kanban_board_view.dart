@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_text_styles.dart';
 import '../../../../data/models/task_model.dart';
 import '../../../../data/models/project_model.dart';
 import '../../../kanban/controllers/kanban_controller.dart';
@@ -19,15 +18,12 @@ class KanbanBoardView extends StatefulWidget {
 class _KanbanBoardViewState extends State<KanbanBoardView> {
   late final KanbanController controller;
   int _activeSubTabIndex = 0;
-  final String _activeTaskId =
-      'task-2'; // This should ideally come from a timer controller
+  final String _activeTaskId = 'task-2';
 
   @override
   void initState() {
     super.initState();
     controller = Get.find<KanbanController>();
-    // Use addPostFrameCallback to avoid setState during build if setProject
-    // triggers an immediate update that Obx might react to while building.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         controller.setProject(widget.project);
@@ -51,14 +47,16 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        );
       }
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSubNavigation(),
           const SizedBox(height: 8),
-          const Divider(color: AppColors.divider),
+          Divider(color: AppColors.darkDivider),
           const SizedBox(height: 32),
           Expanded(
             child: SingleChildScrollView(
@@ -128,11 +126,13 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
           icon: const Icon(Icons.auto_awesome, size: 18),
           label: const Text('Seed Tasks'),
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.primary,
+            foregroundColor: AppColors.primaryGlow,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: AppColors.primary.withOpacity(0.2)),
+              side: BorderSide(
+                color: AppColors.primary.withValues(alpha: 0.2),
+              ),
             ),
           ),
         ),
@@ -160,14 +160,17 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
             Icon(
               icon,
               size: 18,
-              color: isActive ? AppColors.primary : AppColors.textSecondary,
+              color: isActive ? AppColors.primaryGlow : AppColors.darkTextMuted,
             ),
             const SizedBox(width: 8),
             Text(
               label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isActive ? AppColors.primary : AppColors.textSecondary,
+              style: TextStyle(
+                color: isActive
+                    ? AppColors.primaryGlow
+                    : AppColors.darkTextSecondary,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 14,
               ),
             ),
           ],

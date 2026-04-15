@@ -21,61 +21,65 @@ class DashboardView extends GetView<DashboardController> {
     final isDesktop = MediaQuery.of(context).size.width > 1200;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.all(36),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context),
-          const SizedBox(height: 40),
+          const SizedBox(height: 36),
           _buildStatsGrid(isDesktop),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           if (isDesktop)
             Column(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Column
-                    const Expanded(
-                      flex: 3,
-                      child: Column(
-                        children: [
-                          ActivityChart(),
-                          SizedBox(height: 32),
-                          RecentEntries(),
-                        ],
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Expanded(
+                        flex: 3,
+                        child: ActivityChart(),
                       ),
-                    ),
-                    const SizedBox(width: 32),
-                    // Right Column (Sidebar)
-                    const SizedBox(
-                      width: 340,
-                      child: Column(
-                        children: [
-                          TimerCard(),
-                          SizedBox(height: 32),
-                          ProjectDistribution(),
-                        ],
+                      const SizedBox(width: 28),
+                      const SizedBox(
+                        width: 340,
+                        child: TimerCard(),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Expanded(
+                        flex: 3,
+                        child: RecentEntries(),
+                      ),
+                      const SizedBox(width: 28),
+                      const SizedBox(
+                        width: 340,
+                        child: ProjectDistribution(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 28),
                 const ActivityHeatmap(),
               ],
             )
           else
-            // Mobile Layout
             const Column(
               children: [
                 TimerCard(),
-                SizedBox(height: 32),
+                SizedBox(height: 28),
                 ActivityChart(),
-                SizedBox(height: 32),
+                SizedBox(height: 28),
                 ProjectDistribution(),
-                SizedBox(height: 32),
+                SizedBox(height: 28),
                 ActivityHeatmap(),
-                SizedBox(height: 32),
+                SizedBox(height: 28),
                 RecentEntries(),
               ],
             ),
@@ -91,43 +95,51 @@ class DashboardView extends GetView<DashboardController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Dashboard', style: AppTextStyles.h1),
-                SizedBox(height: 4),
+                const Text('Dashboard', style: AppTextStyles.darkH1),
+                const SizedBox(height: 6),
                 Text(
                   'Welcome back, Alex. Here\'s your productivity overview.',
-                  style: AppTextStyles.bodyMedium,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.darkTextSecondary,
+                    letterSpacing: 0.1,
+                  ),
                 ),
               ],
             ),
             Obx(
               () => InkWell(
                 onTap: () => controller.selectDateRange(context),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 14,
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    color: AppColors.darkCard,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppColors.darkBorderSubtle,
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.calendar_today_rounded,
-                        size: 16,
-                        color: AppColors.textSecondary,
+                        size: 14,
+                        color: AppColors.darkTextMuted,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         _formatDateRange(),
-                        style: AppTextStyles.bodySmall.copyWith(
+                        style: TextStyle(
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
+                          color: AppColors.darkTextSecondary,
                         ),
                       ),
                     ],
@@ -139,42 +151,77 @@ class DashboardView extends GetView<DashboardController> {
         ),
         const SizedBox(height: 24),
         Obx(
-          () => SegmentedButton<DateRangeType>(
-            segments: const [
-              ButtonSegment(
-                value: DateRangeType.day,
-                label: Text('Day'),
-                icon: Icon(Icons.today),
-              ),
-              ButtonSegment(
-                value: DateRangeType.week,
-                label: Text('Week'),
-                icon: Icon(Icons.date_range),
-              ),
-              ButtonSegment(
-                value: DateRangeType.month,
-                label: Text('Month'),
-                icon: Icon(Icons.calendar_month),
-              ),
-              ButtonSegment(
-                value: DateRangeType.custom,
-                label: Text('Custom'),
-                icon: Icon(Icons.more_horiz),
-              ),
-            ],
-            selected: {controller.rangeType.value},
-            onSelectionChanged: (Set<DateRangeType> newSelection) {
-              controller.setRange(newSelection.first);
-            },
-            style: SegmentedButton.styleFrom(
-              backgroundColor: Colors.white,
-              selectedBackgroundColor: AppColors.primary,
-              selectedForegroundColor: Colors.white,
-              side: const BorderSide(color: AppColors.border),
-            ),
-          ),
+          () => _buildDarkSegmentedControl(),
         ),
       ],
+    );
+  }
+
+  Widget _buildDarkSegmentedControl() {
+    final items = [
+      (DateRangeType.day, 'Day', Icons.today),
+      (DateRangeType.week, 'Week', Icons.date_range),
+      (DateRangeType.month, 'Month', Icons.calendar_month),
+      (DateRangeType.custom, 'Custom', Icons.more_horiz),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.darkCard,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.darkBorderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: items.map((item) {
+          final isSelected = controller.rangeType.value == item.$1;
+          return GestureDetector(
+            onTap: () => controller.setRange(item.$1),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primary : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    item.$3,
+                    size: 14,
+                    color: isSelected
+                        ? Colors.white
+                        : AppColors.darkTextMuted,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    item.$2,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? Colors.white
+                          : AppColors.darkTextSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -200,41 +247,40 @@ class DashboardView extends GetView<DashboardController> {
         StatCard(
           title: 'Period Hours',
           value: _formatHours(controller.periodTotalHours.value),
-          trend:
-              '+5.2%', // Trend could be calculated if we had yesterday's data
-          isPositive: true,
+          trend: controller.periodHoursTrend.value,
+          trendDescription: controller.trendDescription,
+          isPositive: controller.isPeriodHoursPositive.value,
           icon: Icons.timer_rounded,
-          iconColor: Colors.blue,
-          iconBgColor: const Color(0xFFEFF6FF),
+          accentColor: AppColors.blueGlow,
         ),
         StatCard(
           title: 'Period Revenue',
           value: controller.periodTotalRevenue.value.toCurrency(
             symbol: AppConstants.defaultCurrencySymbol,
           ),
-          trend: '+12%',
-          isPositive: true,
+          trend: controller.periodRevenueTrend.value,
+          trendDescription: controller.trendDescription,
+          isPositive: controller.isPeriodRevenuePositive.value,
           icon: Icons.attach_money_rounded,
-          iconColor: Colors.green,
-          iconBgColor: const Color(0xFFF0FDF4),
+          accentColor: AppColors.greenGlow,
         ),
         StatCard(
           title: 'Active Projects',
-          value: '8', // This could also be fetched from projectRepo
-          trend: '2 nearing deadline',
-          isPositive: false,
+          value: controller.activeProjectsCount.value.toString(),
+          trend: controller.activeProjectsTrend.value,
+          trendDescription: controller.trendDescription,
+          isPositive: controller.isActiveProjectsPositive.value,
           icon: Icons.folder_rounded,
-          iconColor: Colors.blueAccent,
-          iconBgColor: const Color(0xFFEEF2FF),
+          accentColor: AppColors.primaryGlow,
         ),
         StatCard(
           title: 'Monthly Hours',
           value: _formatHours(controller.monthlyHours.value),
-          trend: 'Updated just now',
-          isPositive: true,
+          trend: controller.monthlyHoursTrend.value,
+          trendDescription: 'vs last month',
+          isPositive: controller.isMonthlyHoursPositive.value,
           icon: Icons.analytics_rounded,
-          iconColor: Colors.orange,
-          iconBgColor: const Color(0xFFFFFBEB),
+          accentColor: AppColors.amberGlow,
         ),
       ];
 
@@ -244,7 +290,7 @@ class DashboardView extends GetView<DashboardController> {
               .map(
                 (s) => Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(right: s == stats.last ? 0 : 24),
+                    padding: EdgeInsets.only(right: s == stats.last ? 0 : 20),
                     child: s,
                   ),
                 ),
