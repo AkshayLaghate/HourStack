@@ -30,6 +30,10 @@ class _StatCardState extends State<StatCard> {
 
   @override
   Widget build(BuildContext context) {
+    final textPrimary = AppColors.textPrimaryColor(context);
+    final textSecondary = AppColors.textSecondaryColor(context);
+    final textMuted = AppColors.textMutedColor(context);
+
     return MouseRegion(
       onEnter: (_) => setState(() => _hovering = true),
       onExit: (_) => setState(() => _hovering = false),
@@ -39,13 +43,13 @@ class _StatCardState extends State<StatCard> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: _hovering
-              ? AppColors.darkCardHover
-              : AppColors.darkCard,
+              ? AppColors.cardHover(context)
+              : AppColors.cardBackground(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _hovering
                 ? widget.accentColor.withValues(alpha: 0.15)
-                : AppColors.darkBorderSubtle,
+                : AppColors.borderSubtle(context),
           ),
           boxShadow: _hovering
               ? [
@@ -69,7 +73,7 @@ class _StatCardState extends State<StatCard> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.darkTextSecondary,
+                      color: textSecondary,
                       letterSpacing: 0.2,
                     ),
                     maxLines: 1,
@@ -97,10 +101,10 @@ class _StatCardState extends State<StatCard> {
             const SizedBox(height: 14),
             Text(
               widget.value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
-                color: AppColors.darkTextPrimary,
+                color: textPrimary,
                 letterSpacing: -0.5,
               ),
               maxLines: 1,
@@ -153,7 +157,7 @@ class _StatCardState extends State<StatCard> {
                     widget.trendDescription,
                     style: TextStyle(
                       fontSize: 10,
-                      color: AppColors.darkTextMuted,
+                      color: textMuted,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

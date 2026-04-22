@@ -57,9 +57,85 @@ class AppColors {
   static const Color darkSidebarActive = Color(0xFF161D33);
   static const Color darkDivider = Color(0xFF1A2035);
 
+  // Light dashboard palette derived from the provided reference
+  static const Color lightAppBackground = Color(0xFFF5F7FB);
+  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightSidebar = Color(0xFFFFFFFF);
+  static const Color lightSidebarActive = Color(0xFFE6E7FF);
+  static const Color lightCardHover = Color(0xFFF8FAFF);
+  static const Color lightBorderSubtle = Color(0xFFE6ECF5);
+  static const Color lightTextPrimary = Color(0xFF111827);
+  static const Color lightTextSecondary = Color(0xFF5F7393);
+  static const Color lightTextMuted = Color(0xFF94A3B8);
+  static const Color lightInputBackground = Color(0xFFFFFFFF);
+  static const Color lightTimerStart = Color(0xFFEEF2FF);
+  static const Color lightTimerEnd = Color(0xFFE0E7FF);
+
   // Accent glows for dark theme
   static const Color blueGlow = Color(0xFF60A5FA);
   static const Color greenGlow = Color(0xFF4ADE80);
   static const Color amberGlow = Color(0xFFFBBF24);
   static const Color roseGlow = Color(0xFFFB7185);
+
+  static bool isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  static Color appBackground(BuildContext context) =>
+      isDark(context) ? darkBg : lightAppBackground;
+
+  static Color surface(BuildContext context) =>
+      isDark(context) ? darkSurface : lightSurface;
+
+  static Color sidebarBackground(BuildContext context) =>
+      isDark(context) ? darkSidebar : lightSidebar;
+
+  static Color sidebarActive(BuildContext context) =>
+      isDark(context) ? darkSidebarActive : lightSidebarActive;
+
+  static Color cardBackground(BuildContext context) =>
+      isDark(context) ? darkCard : lightSurface;
+
+  static Color cardHover(BuildContext context) =>
+      isDark(context) ? darkCardHover : lightCardHover;
+
+  static Color borderColor(BuildContext context) =>
+      isDark(context) ? darkBorder : border;
+
+  static Color borderSubtle(BuildContext context) =>
+      isDark(context) ? darkBorderSubtle : lightBorderSubtle;
+
+  static Color dividerColor(BuildContext context) =>
+      isDark(context) ? darkDivider : divider;
+
+  static Color textPrimaryColor(BuildContext context) =>
+      isDark(context) ? darkTextPrimary : lightTextPrimary;
+
+  static Color textSecondaryColor(BuildContext context) =>
+      isDark(context) ? darkTextSecondary : lightTextSecondary;
+
+  static Color textMutedColor(BuildContext context) =>
+      isDark(context) ? darkTextMuted : lightTextMuted;
+
+  static Color inputBackground(BuildContext context) =>
+      isDark(context) ? loginDarkInputBg : lightInputBackground;
+
+  static Color inputBorder(BuildContext context) =>
+      isDark(context) ? loginDarkInputBorder : lightBorderSubtle;
+
+  static List<Color> timerGradient(BuildContext context) => isDark(context)
+      ? const [Color(0xFF1A1545), Color(0xFF161040)]
+      : const [lightTimerStart, lightTimerEnd];
+
+  static Color timerTextColor(BuildContext context) =>
+      isDark(context) ? darkTextPrimary : lightTextPrimary;
+
+  static Color timerSecondaryTextColor(BuildContext context) =>
+      isDark(context)
+          ? Colors.white.withValues(alpha: 0.7)
+          : lightTextSecondary;
+
+  static Color timerOutlineColor(BuildContext context) =>
+      isDark(context)
+          ? Colors.white.withValues(alpha: 0.06)
+          : primary.withValues(alpha: 0.12);
 }

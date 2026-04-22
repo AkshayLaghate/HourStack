@@ -17,9 +17,10 @@ class MainView extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 1200;
+    final isDark = AppColors.isDark(context);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: AppColors.appBackground(context),
       body: Stack(
         children: [
           // Subtle ambient glow — top-right
@@ -33,7 +34,7 @@ class MainView extends GetView<MainController> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.primary.withValues(alpha: 0.06),
+                    AppColors.primary.withValues(alpha: isDark ? 0.06 : 0.09),
                     Colors.transparent,
                   ],
                 ),
@@ -51,7 +52,7 @@ class MainView extends GetView<MainController> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.primaryGlow.withValues(alpha: 0.04),
+                    AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
                     Colors.transparent,
                   ],
                 ),

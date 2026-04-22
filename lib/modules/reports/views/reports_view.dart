@@ -12,7 +12,7 @@ class ReportsView extends GetView<ReportsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: AppColors.appBackground(context),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
@@ -23,7 +23,7 @@ class ReportsView extends GetView<ReportsController> {
         return ListView(
           padding: const EdgeInsets.all(32.0),
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             const SizedBox(height: 32),
             _buildTopStats(),
             const SizedBox(height: 32),
@@ -34,11 +34,11 @@ class ReportsView extends GetView<ReportsController> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -46,7 +46,7 @@ class ReportsView extends GetView<ReportsController> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: AppColors.darkTextPrimary,
+                color: AppColors.textPrimaryColor(context),
                 letterSpacing: -0.5,
               ),
             ),
@@ -55,7 +55,7 @@ class ReportsView extends GetView<ReportsController> {
               'Analyze and export your workspace performance',
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.darkTextSecondary,
+                color: AppColors.textSecondaryColor(context),
               ),
             ),
           ],
@@ -75,9 +75,11 @@ class ReportsView extends GetView<ReportsController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(Get.context!),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: AppColors.borderColor(Get.context!).withValues(alpha: 0.5),
+        ),
       ),
       child: Obx(() {
         final projects = controller.projectController.projects;
@@ -152,11 +154,11 @@ class ReportsView extends GetView<ReportsController> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: AppColors.darkCard,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.darkBorder.withValues(alpha: 0.5),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground(Get.context!),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+              color: AppColors.borderColor(Get.context!).withValues(alpha: 0.5),
             ),
           ),
           child: Obx(
@@ -205,10 +207,10 @@ class ReportsView extends GetView<ReportsController> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.darkCard,
+              color: AppColors.cardBackground(Get.context!),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.darkBorder.withValues(alpha: 0.5),
+                color: AppColors.borderColor(Get.context!).withValues(alpha: 0.5),
               ),
             ),
             child: Row(
@@ -240,9 +242,11 @@ class ReportsView extends GetView<ReportsController> {
   Widget _buildProjectSummaryCard() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(Get.context!),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: AppColors.borderColor(Get.context!).withValues(alpha: 0.5),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

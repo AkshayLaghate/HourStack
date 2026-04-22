@@ -98,13 +98,13 @@ class DashboardView extends GetView<DashboardController> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Dashboard', style: AppTextStyles.darkH1),
+                Text('Dashboard', style: AppTextStyles.pageTitle(context)),
                 const SizedBox(height: 6),
                 Text(
                   'Welcome back, Alex. Here\'s your productivity overview.',
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.darkTextSecondary,
+                    color: AppColors.textSecondaryColor(context),
                     letterSpacing: 0.1,
                   ),
                 ),
@@ -120,10 +120,10 @@ class DashboardView extends GetView<DashboardController> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.darkCard,
+                    color: AppColors.cardBackground(context),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: AppColors.darkBorderSubtle,
+                      color: AppColors.borderSubtle(context),
                     ),
                   ),
                   child: Row(
@@ -131,7 +131,7 @@ class DashboardView extends GetView<DashboardController> {
                       Icon(
                         Icons.calendar_today_rounded,
                         size: 14,
-                        color: AppColors.darkTextMuted,
+                        color: AppColors.textMutedColor(context),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -139,7 +139,7 @@ class DashboardView extends GetView<DashboardController> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.darkTextSecondary,
+                          color: AppColors.textSecondaryColor(context),
                         ),
                       ),
                     ],
@@ -151,13 +151,13 @@ class DashboardView extends GetView<DashboardController> {
         ),
         const SizedBox(height: 24),
         Obx(
-          () => _buildDarkSegmentedControl(),
+          () => _buildSegmentedControl(context),
         ),
       ],
     );
   }
 
-  Widget _buildDarkSegmentedControl() {
+  Widget _buildSegmentedControl(BuildContext context) {
     final items = [
       (DateRangeType.day, 'Day', Icons.today),
       (DateRangeType.week, 'Week', Icons.date_range),
@@ -168,9 +168,9 @@ class DashboardView extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.darkBorderSubtle),
+        border: Border.all(color: AppColors.borderSubtle(context)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -203,7 +203,7 @@ class DashboardView extends GetView<DashboardController> {
                     size: 14,
                     color: isSelected
                         ? Colors.white
-                        : AppColors.darkTextMuted,
+                        : AppColors.textMutedColor(context),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -213,7 +213,7 @@ class DashboardView extends GetView<DashboardController> {
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: isSelected
                           ? Colors.white
-                          : AppColors.darkTextSecondary,
+                          : AppColors.textSecondaryColor(context),
                     ),
                   ),
                 ],

@@ -14,9 +14,9 @@ class ActivityChart extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorderSubtle),
+        border: Border.all(color: AppColors.borderSubtle(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,12 +24,21 @@ class ActivityChart extends GetView<DashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Obx(() => Text(controller.rangeLabel, style: AppTextStyles.darkH2)),
+              Obx(
+                () => Text(
+                  controller.rangeLabel,
+                  style: AppTextStyles.sectionTitle(context),
+                ),
+              ),
               Row(
                 children: [
-                  _buildLegendItem('Billable', AppColors.primaryGlow),
+                  _buildLegendItem(context, 'Billable', AppColors.primary),
                   const SizedBox(width: 16),
-                  _buildLegendItem('Non-billable', AppColors.darkTextMuted),
+                  _buildLegendItem(
+                    context,
+                    'Non-billable',
+                    AppColors.textMutedColor(context),
+                  ),
                 ],
               ),
             ],
@@ -72,10 +81,10 @@ class ActivityChart extends GetView<DashboardController> {
                   minY: 0,
                   lineTouchData: LineTouchData(
                     touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor: (_) => AppColors.darkCardHover,
+                      getTooltipColor: (_) => AppColors.cardHover(context),
                       tooltipBorderRadius: BorderRadius.circular(8),
                       tooltipBorder: BorderSide(
-                        color: AppColors.darkBorder.withValues(alpha: 0.5),
+                        color: AppColors.borderColor(context).withValues(alpha: 0.5),
                       ),
                       getTooltipItems: (List<LineBarSpot> touchedSpots) {
                         return touchedSpots.map((LineBarSpot touchedSpot) {
@@ -96,7 +105,7 @@ class ActivityChart extends GetView<DashboardController> {
                     drawVerticalLine: false,
                     horizontalInterval: 2,
                     getDrawingHorizontalLine: (value) => FlLine(
-                      color: AppColors.darkBorderSubtle.withValues(alpha: 0.4),
+                      color: AppColors.borderSubtle(context).withValues(alpha: 0.7),
                       strokeWidth: 0.5,
                     ),
                   ),
@@ -124,7 +133,7 @@ class ActivityChart extends GetView<DashboardController> {
                                 controller.chartLabels[index],
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: AppColors.darkTextMuted,
+                                  color: AppColors.textMutedColor(context),
                                 ),
                               ),
                             );
@@ -153,7 +162,7 @@ class ActivityChart extends GetView<DashboardController> {
                           .toList(),
                       isCurved: true,
                       preventCurveOverShooting: true,
-                      color: AppColors.primaryGlow,
+                      color: AppColors.primary,
                       barWidth: 2.5,
                       isStrokeCapRound: true,
                       dotData: const FlDotData(show: false),
@@ -177,7 +186,7 @@ class ActivityChart extends GetView<DashboardController> {
                           .toList(),
                       isCurved: true,
                       preventCurveOverShooting: true,
-                      color: AppColors.darkTextMuted.withValues(alpha: 0.4),
+                      color: AppColors.textMutedColor(context).withValues(alpha: 0.5),
                       barWidth: 1.5,
                       isStrokeCapRound: true,
                       dotData: const FlDotData(show: false),
@@ -192,7 +201,7 @@ class ActivityChart extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(BuildContext context, String label, Color color) {
     return Row(
       children: [
         Container(
@@ -214,7 +223,7 @@ class ActivityChart extends GetView<DashboardController> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: AppColors.darkTextSecondary,
+            color: AppColors.textSecondaryColor(context),
           ),
         ),
       ],

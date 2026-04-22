@@ -72,10 +72,10 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.darkCardHover,
+                    color: AppColors.cardHover(context),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppColors.darkBorder.withValues(alpha: 0.5),
+                      color: AppColors.borderColor(context).withValues(alpha: 0.5),
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -91,15 +91,15 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
                       Text(
                         dateStr,
                         style: TextStyle(
-                          color: AppColors.darkTextMuted,
+                          color: AppColors.textMutedColor(context),
                           fontSize: 10,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         timeStr,
-                        style: const TextStyle(
-                          color: AppColors.darkTextPrimary,
+                        style: TextStyle(
+                          color: AppColors.textPrimaryColor(context),
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -137,9 +137,9 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorderSubtle),
+        border: Border.all(color: AppColors.borderSubtle(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,18 +151,21 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Activity Heatmap', style: AppTextStyles.darkH3),
+                  Text(
+                    'Activity Heatmap',
+                    style: AppTextStyles.cardTitle(context),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     'Daily work intensity over the last year',
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.darkTextMuted,
+                      color: AppColors.textMutedColor(context),
                     ),
                   ),
                 ],
               ),
-              _buildLegendRow(),
+              _buildLegendRow(context),
             ],
           ),
           const SizedBox(height: 24),
@@ -204,14 +207,14 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
     );
   }
 
-  Widget _buildLegendRow() {
+  Widget _buildLegendRow(BuildContext context) {
     return Row(
       children: [
         Text(
           'Less',
           style: TextStyle(
             fontSize: 11,
-            color: AppColors.darkTextMuted,
+            color: AppColors.textMutedColor(context),
           ),
         ),
         const SizedBox(width: 6),
@@ -229,7 +232,7 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
           'More',
           style: TextStyle(
             fontSize: 11,
-            color: AppColors.darkTextMuted,
+            color: AppColors.textMutedColor(context),
           ),
         ),
       ],

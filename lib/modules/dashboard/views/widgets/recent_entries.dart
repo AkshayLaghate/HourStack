@@ -14,9 +14,9 @@ class RecentEntries extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorderSubtle),
+        border: Border.all(color: AppColors.borderSubtle(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,13 +24,16 @@ class RecentEntries extends GetView<DashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Recent Entries', style: AppTextStyles.darkH2),
+              Text(
+                'Recent Entries',
+                style: AppTextStyles.sectionTitle(context),
+              ),
               TextButton(
                 onPressed: () {},
                 child: Text(
                   'View All',
                   style: TextStyle(
-                    color: AppColors.primaryGlow,
+                    color: AppColors.primary,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -44,7 +47,7 @@ class RecentEntries extends GetView<DashboardController> {
                 controller.recentSessions.isEmpty) {
               return Center(
                 child: CircularProgressIndicator(
-                  color: AppColors.primaryGlow,
+                  color: AppColors.primary,
                   strokeWidth: 2,
                 ),
               );
@@ -70,6 +73,7 @@ class RecentEntries extends GetView<DashboardController> {
                 return Column(
                   children: [
                     _buildEntryItem(
+                      context: context,
                       icon: IconData(
                         project?.iconCodePoint ?? 0xe232,
                         fontFamily: 'MaterialIcons',
@@ -81,13 +85,13 @@ class RecentEntries extends GetView<DashboardController> {
                       category: isBillable ? 'Billable' : 'Non-billable',
                       categoryColor: isBillable
                           ? AppColors.greenGlow
-                          : AppColors.darkTextMuted,
+                          : AppColors.textMutedColor(context),
                       time: _formatDuration(session.durationMinutes),
                     ),
                     if (!isLast)
                       Divider(
                         height: 1,
-                        color: AppColors.darkDivider,
+                        color: AppColors.dividerColor(context),
                       ),
                   ],
                 );
@@ -106,6 +110,7 @@ class RecentEntries extends GetView<DashboardController> {
   }
 
   Widget _buildEntryItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -135,10 +140,10 @@ class RecentEntries extends GetView<DashboardController> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkTextPrimary,
+                    color: AppColors.textPrimaryColor(context),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -146,7 +151,7 @@ class RecentEntries extends GetView<DashboardController> {
                   subtitle,
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.darkTextMuted,
+                    color: AppColors.textMutedColor(context),
                   ),
                 ),
               ],
@@ -173,10 +178,10 @@ class RecentEntries extends GetView<DashboardController> {
           const SizedBox(width: 14),
           Text(
             time,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.darkTextPrimary,
+              color: AppColors.textPrimaryColor(context),
               letterSpacing: -0.3,
             ),
           ),

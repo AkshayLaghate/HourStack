@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme/app_colors.dart';
+import 'package:get/get.dart';
 import '../../../../app/routes/app_pages.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../projects/controllers/project_controller.dart';
 import '../../../timer/controllers/timer_controller.dart';
-import 'package:get/get.dart';
 
 class TimerCard extends StatelessWidget {
   const TimerCard({super.key});
@@ -11,22 +11,21 @@ class TimerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timerController = Get.find<TimerController>();
+    final isDark = AppColors.isDark(context);
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1A1545), Color(0xFF161040)],
+        gradient: LinearGradient(
+          colors: AppColors.timerGradient(context),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.16)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.12),
+            color: AppColors.primary.withValues(alpha: isDark ? 0.12 : 0.08),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -45,10 +44,12 @@ class TimerCard extends StatelessWidget {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : AppColors.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.06),
+                      color: AppColors.timerOutlineColor(context),
                     ),
                   ),
                   child: Row(
@@ -61,7 +62,7 @@ class TimerCard extends StatelessWidget {
                               ? (timerController.isPaused.value
                                     ? AppColors.amberGlow
                                     : AppColors.greenGlow)
-                              : AppColors.darkTextMuted,
+                              : AppColors.textMutedColor(context),
                           shape: BoxShape.circle,
                           boxShadow: timerController.isTimerRunning.value
                               ? [
@@ -84,7 +85,7 @@ class TimerCard extends StatelessWidget {
                                   : 'TRACKING')
                             : 'IDLE',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: AppColors.timerSecondaryTextColor(context),
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.2,
@@ -96,7 +97,9 @@ class TimerCard extends StatelessWidget {
               ),
               Icon(
                 Icons.more_horiz_rounded,
-                color: Colors.white.withValues(alpha: 0.3),
+                color: AppColors.timerSecondaryTextColor(
+                  context,
+                ).withValues(alpha: 0.75),
                 size: 20,
               ),
             ],
@@ -107,7 +110,7 @@ class TimerCard extends StatelessWidget {
                 ? Text(
                     'Project: ${timerController.selectedProject.value?.name ?? "None"}',
                     style: TextStyle(
-                      color: AppColors.primaryGlow.withValues(alpha: 0.7),
+                      color: AppColors.primary.withValues(alpha: 0.88),
                       fontSize: 13,
                     ),
                   )
@@ -127,8 +130,8 @@ class TimerCard extends StatelessWidget {
                 ? Text(
                     timerController.selectedTask.value?.title ??
                         'No Task Active',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppColors.timerTextColor(context),
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.3,
@@ -145,8 +148,8 @@ class TimerCard extends StatelessWidget {
                           'Select Project',
                           'Please select a project first to see available tasks.',
                           snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: AppColors.darkCard,
-                          colorText: AppColors.darkTextPrimary,
+                          backgroundColor: AppColors.cardBackground(context),
+                          colorText: AppColors.textPrimaryColor(context),
                         );
                       } else {
                         _showTaskSelectionSheet(context);
@@ -162,14 +165,14 @@ class TimerCard extends StatelessWidget {
               () => Text(
                 timerController.formattedTime,
                 style: TextStyle(
-                  color: AppColors.darkTextPrimary,
+                  color: AppColors.timerTextColor(context),
                   fontSize: 44,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 3,
                   fontFamily: 'monospace',
                   shadows: [
                     Shadow(
-                      color: AppColors.primaryGlow.withValues(alpha: 0.3),
+                      color: AppColors.primary.withValues(alpha: 0.22),
                       blurRadius: 20,
                     ),
                   ],
@@ -186,17 +189,15 @@ class TimerCard extends StatelessWidget {
                     onTap: () async {
                       if (timerController.isTimerRunning.value) {
                         await timerController.stopTimer();
+                      } else if (timerController.selectedProject.value == null) {
+                        Get.snackbar(
+                          'Info',
+                          'Please select a project first',
+                          backgroundColor: AppColors.cardBackground(context),
+                          colorText: AppColors.textPrimaryColor(context),
+                        );
                       } else {
-                        if (timerController.selectedProject.value == null) {
-                          Get.snackbar(
-                            'Info',
-                            'Please select a project first',
-                            backgroundColor: AppColors.darkCard,
-                            colorText: AppColors.darkTextPrimary,
-                          );
-                        } else {
-                          await timerController.startTimer();
-                        }
+                        await timerController.startTimer();
                       }
                     },
                     child: Container(
@@ -239,6 +240,7 @@ class TimerCard extends StatelessWidget {
                 if (!timerController.isTimerRunning.value) {
                   return const SizedBox.shrink();
                 }
+
                 return Padding(
                   padding: const EdgeInsets.only(left: 10),
                   child: GestureDetector(
@@ -249,23 +251,11 @@ class TimerCard extends StatelessWidget {
                         timerController.pauseTimer();
                       }
                     },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(11),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.06),
-                        ),
-                      ),
-                      child: Icon(
-                        timerController.isPaused.value
-                            ? Icons.play_arrow_rounded
-                            : Icons.pause_rounded,
-                        color: Colors.white.withValues(alpha: 0.8),
-                        size: 20,
-                      ),
+                    child: _buildIconButton(
+                      context,
+                      icon: timerController.isPaused.value
+                          ? Icons.play_arrow_rounded
+                          : Icons.pause_rounded,
                     ),
                   ),
                 );
@@ -280,31 +270,40 @@ class TimerCard extends StatelessWidget {
                       'Timer Not Running',
                       'Please start the timer to enter Focus Mode.',
                       snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: AppColors.darkCard,
-                      colorText: AppColors.darkTextPrimary,
+                      backgroundColor: AppColors.cardBackground(context),
+                      colorText: AppColors.textPrimaryColor(context),
                     );
                   }
                 },
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(11),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.06),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.fullscreen_rounded,
-                    color: Colors.white.withValues(alpha: 0.8),
-                    size: 20,
-                  ),
+                child: _buildIconButton(
+                  context,
+                  icon: Icons.fullscreen_rounded,
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildIconButton(BuildContext context, {required IconData icon}) {
+    final isDark = AppColors.isDark(context);
+
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.08)
+            : AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(color: AppColors.timerOutlineColor(context)),
+      ),
+      child: Icon(
+        icon,
+        color: AppColors.timerTextColor(context).withValues(alpha: 0.82),
+        size: 20,
       ),
     );
   }
@@ -363,10 +362,12 @@ class TimerCard extends StatelessWidget {
           maxHeight: MediaQuery.of(context).size.height * 0.7,
         ),
         decoration: BoxDecoration(
-          color: AppColors.darkSurface,
+          color: AppColors.surface(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           border: Border(
-            top: BorderSide(color: AppColors.darkBorder.withValues(alpha: 0.5)),
+            top: BorderSide(
+              color: AppColors.borderColor(context).withValues(alpha: 0.5),
+            ),
           ),
         ),
         child: Column(
@@ -377,7 +378,7 @@ class TimerCard extends StatelessWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.darkBorder,
+                color: AppColors.borderColor(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -387,10 +388,10 @@ class TimerCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkTextPrimary,
+                      color: AppColors.textPrimaryColor(context),
                     ),
                   ),
                   const Spacer(),
@@ -398,35 +399,32 @@ class TimerCard extends StatelessWidget {
                     onPressed: () => Get.back(),
                     icon: const Icon(Icons.close_rounded, size: 20),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.darkCard,
-                      foregroundColor: AppColors.darkTextSecondary,
+                      backgroundColor: AppColors.cardBackground(context),
+                      foregroundColor: AppColors.textSecondaryColor(context),
                     ),
                   ),
                 ],
               ),
             ),
-            Divider(
-              height: 1,
-              color: AppColors.darkBorderSubtle,
-            ),
+            Divider(height: 1, color: AppColors.borderSubtle(context)),
             Flexible(
               child: items.isEmpty
                   ? Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(40.0),
+                        padding: const EdgeInsets.all(40),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.search_off_rounded,
                               size: 44,
-                              color: AppColors.darkTextMuted,
+                              color: AppColors.textMutedColor(context),
                             ),
                             const SizedBox(height: 14),
                             Text(
                               'No items found',
                               style: TextStyle(
-                                color: AppColors.darkTextSecondary,
+                                color: AppColors.textSecondaryColor(context),
                                 fontSize: 15,
                               ),
                             ),
@@ -484,7 +482,7 @@ class _SelectionTrigger extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: AppColors.primaryGlow.withValues(alpha: 0.6),
+                color: AppColors.primary.withValues(alpha: 0.72),
                 size: fontSize + 2,
               ),
               const SizedBox(width: 10),
@@ -492,7 +490,7 @@ class _SelectionTrigger extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: AppColors.timerTextColor(context).withValues(alpha: 0.92),
                     fontSize: fontSize,
                     fontWeight: isLabelBold ? FontWeight.w700 : FontWeight.w500,
                   ),
@@ -502,7 +500,9 @@ class _SelectionTrigger extends StatelessWidget {
               const SizedBox(width: 4),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: Colors.white.withValues(alpha: 0.4),
+                color: AppColors.timerSecondaryTextColor(
+                  context,
+                ).withValues(alpha: 0.85),
                 size: fontSize + 4,
               ),
             ],
@@ -562,7 +562,7 @@ class _SelectionItem extends StatelessWidget {
                     ),
                   )
                 else if (icon != null)
-                  Icon(icon, color: AppColors.primaryGlow, size: 18),
+                  Icon(icon, color: AppColors.primary, size: 18),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -576,8 +576,8 @@ class _SelectionItem extends StatelessWidget {
                               ? FontWeight.w700
                               : FontWeight.w500,
                           color: isSelected
-                              ? AppColors.primaryGlow
-                              : AppColors.darkTextPrimary,
+                              ? AppColors.primary
+                              : AppColors.textPrimaryColor(context),
                         ),
                       ),
                       if (subtitle != null) ...[
@@ -586,7 +586,7 @@ class _SelectionItem extends StatelessWidget {
                           subtitle!,
                           style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.darkTextMuted,
+                            color: AppColors.textMutedColor(context),
                           ),
                         ),
                       ],
@@ -594,9 +594,9 @@ class _SelectionItem extends StatelessWidget {
                   ),
                 ),
                 if (isSelected)
-                  Icon(
+                  const Icon(
                     Icons.check_circle_rounded,
-                    color: AppColors.primaryGlow,
+                    color: AppColors.primary,
                     size: 18,
                   ),
               ],

@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'app/routes/app_pages.dart';
 import 'app/theme/app_theme.dart';
 import 'data/services/auth_service.dart';
+import 'data/services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,7 @@ void main() async {
 
 Future<void> initServices() async {
   Get.put(AuthService());
+  await Get.putAsync(() => ThemeService().init());
 }
 
 class MyApp extends StatelessWidget {
@@ -24,14 +26,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'HourStack',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      initialRoute: AppPages.INITIAL,
-      getPages: AppPages.routes,
-      debugShowCheckedModeBanner: false,
+    final themeService = Get.find<ThemeService>();
+
+    return Obx(
+      () => GetMaterialApp(
+        title: 'HourStack',
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeService.themeMode,
+        initialRoute: AppPages.INITIAL,
+        getPages: AppPages.routes,
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

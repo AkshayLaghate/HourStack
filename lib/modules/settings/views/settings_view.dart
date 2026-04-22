@@ -9,13 +9,13 @@ class SettingsView extends GetView<SettingsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: AppColors.appBackground(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(48.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             const SizedBox(height: 32),
             _buildProfileSection(),
             const SizedBox(height: 24),
@@ -34,8 +34,8 @@ class SettingsView extends GetView<SettingsController> {
     );
   }
 
-  Widget _buildHeader() {
-    return const Column(
+  Widget _buildHeader(BuildContext context) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -43,7 +43,7 @@ class SettingsView extends GetView<SettingsController> {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w800,
-            color: AppColors.darkTextPrimary,
+            color: AppColors.textPrimaryColor(context),
             letterSpacing: -1,
           ),
         ),
@@ -52,7 +52,7 @@ class SettingsView extends GetView<SettingsController> {
           'Manage your account, preferences, and tracking behavior.',
           style: TextStyle(
             fontSize: 15,
-            color: AppColors.darkTextSecondary,
+            color: AppColors.textSecondaryColor(context),
           ),
         ),
       ],
@@ -64,19 +64,21 @@ class SettingsView extends GetView<SettingsController> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(Get.context!),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: AppColors.borderColor(Get.context!).withValues(alpha: 0.5),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.darkTextPrimary,
+              color: AppColors.textPrimaryColor(Get.context!),
             ),
           ),
           const SizedBox(height: 24),
@@ -263,6 +265,9 @@ class SettingsView extends GetView<SettingsController> {
           label: 'Theme',
           value: controller.selectedTheme,
           items: ['Light', 'Dark', 'System'],
+          onChanged: (value) {
+            controller.updateTheme(value);
+          },
         ),
       ),
     );
@@ -408,6 +413,7 @@ class SettingsView extends GetView<SettingsController> {
     required String label,
     required RxString value,
     required List<String> items,
+    ValueChanged<String>? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,7 +455,10 @@ class SettingsView extends GetView<SettingsController> {
                   );
                 }).toList(),
                 onChanged: (v) {
-                  if (v != null) value.value = v;
+                  if (v != null) {
+                    value.value = v;
+                    onChanged?.call(v);
+                  }
                 },
               ),
             ),

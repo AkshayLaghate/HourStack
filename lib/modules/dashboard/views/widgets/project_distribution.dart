@@ -13,20 +13,23 @@ class ProjectDistribution extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: AppColors.cardBackground(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorderSubtle),
+        border: Border.all(color: AppColors.borderSubtle(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Project Distribution', style: AppTextStyles.darkH3),
+          Text(
+            'Project Distribution',
+            style: AppTextStyles.cardTitle(context),
+          ),
           const SizedBox(height: 4),
           Text(
             'Time allocated per project',
             style: TextStyle(
               fontSize: 13,
-              color: AppColors.darkTextMuted,
+              color: AppColors.textMutedColor(context),
             ),
           ),
           const SizedBox(height: 28),
@@ -39,7 +42,7 @@ class ProjectDistribution extends GetView<DashboardController> {
                   child: Text(
                     'No project data',
                     style: TextStyle(
-                      color: AppColors.darkTextMuted,
+                      color: AppColors.textMutedColor(context),
                       fontSize: 13,
                     ),
                   ),
@@ -59,7 +62,7 @@ class ProjectDistribution extends GetView<DashboardController> {
               AppColors.primaryGlow,
               AppColors.blueGlow,
               const Color(0xFFA78BFA),
-              AppColors.darkBorder,
+              AppColors.borderColor(context),
             ];
 
             final legendItems = <Widget>[];
@@ -80,7 +83,12 @@ class ProjectDistribution extends GetView<DashboardController> {
                   ),
                 );
                 legendItems.add(
-                  _buildLegendItem(entry.key.name, '$pct%', colors[i]),
+                  _buildLegendItem(
+                    context,
+                    entry.key.name,
+                    '$pct%',
+                    colors[i],
+                  ),
                 );
                 legendItems.add(const SizedBox(height: 10));
               } else {
@@ -100,7 +108,9 @@ class ProjectDistribution extends GetView<DashboardController> {
                   radius: 22,
                 ),
               );
-              legendItems.add(_buildLegendItem('Others', '$pct%', colors[3]));
+              legendItems.add(
+                _buildLegendItem(context, 'Others', '$pct%', colors[3]),
+              );
             } else if (legendItems.isNotEmpty) {
               legendItems.removeLast();
             }
@@ -125,10 +135,10 @@ class ProjectDistribution extends GetView<DashboardController> {
                         children: [
                           Text(
                             '${controller.activeProjectsCount}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.darkTextPrimary,
+                              color: AppColors.textPrimaryColor(context),
                               letterSpacing: -0.5,
                             ),
                           ),
@@ -136,7 +146,7 @@ class ProjectDistribution extends GetView<DashboardController> {
                             'Active',
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.darkTextMuted,
+                              color: AppColors.textMutedColor(context),
                             ),
                           ),
                         ],
@@ -154,7 +164,12 @@ class ProjectDistribution extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildLegendItem(String title, String percentage, Color color) {
+  Widget _buildLegendItem(
+    BuildContext context,
+    String title,
+    String percentage,
+    Color color,
+  ) {
     return Row(
       children: [
         Container(
@@ -175,10 +190,10 @@ class ProjectDistribution extends GetView<DashboardController> {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppColors.darkTextPrimary,
+              color: AppColors.textPrimaryColor(context),
             ),
           ),
         ),
@@ -187,7 +202,7 @@ class ProjectDistribution extends GetView<DashboardController> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkTextSecondary,
+            color: AppColors.textSecondaryColor(context),
           ),
         ),
       ],

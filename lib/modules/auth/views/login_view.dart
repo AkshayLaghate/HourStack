@@ -407,32 +407,32 @@ class LoginView extends GetView<AuthController> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Simple Google "G" icon
-                Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Icon(
-                    Icons.g_mobiledata,
-                    size: 28,
-                    color: AppColors.loginDarkTextPrimary,
-                  ),
+            child: const Center(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 8),
+                        child: Icon(
+                          Icons.g_mobiledata,
+                          size: 22,
+                          color: AppColors.loginDarkTextPrimary,
+                        ),
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Continue with Google',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.loginDarkTextPrimary,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                const Text(
-                  'Continue with Google',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.loginDarkTextPrimary,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

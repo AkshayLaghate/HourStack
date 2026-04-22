@@ -110,4 +110,24 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w600,
   );
+
+  static TextStyle pageTitle(BuildContext context) => TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.w800,
+    color: AppColors.textPrimaryColor(context),
+    letterSpacing: -0.8,
+  );
+
+  static TextStyle sectionTitle(BuildContext context) => TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimaryColor(context),
+    letterSpacing: -0.3,
+  );
+
+  static TextStyle cardTitle(BuildContext context) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimaryColor(context),
+  );
 }

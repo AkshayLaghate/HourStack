@@ -103,12 +103,14 @@ class ProjectListView extends GetView<ProjectController> {
   }
 
   Widget _buildTopBar() {
+    final context = Get.context!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
         border: Border(
-          bottom: BorderSide(color: AppColors.darkDivider),
+          bottom: BorderSide(color: AppColors.dividerColor(context)),
         ),
       ),
       child: Row(
@@ -117,28 +119,28 @@ class ProjectListView extends GetView<ProjectController> {
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.loginDarkInputBg,
+                color: AppColors.inputBackground(context),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.loginDarkInputBorder),
+                border: Border.all(color: AppColors.inputBorder(context)),
               ),
-              child: const TextField(
+              child: TextField(
                 style: TextStyle(
-                  color: AppColors.darkTextPrimary,
+                  color: AppColors.textPrimaryColor(context),
                   fontSize: 14,
                 ),
-                cursorColor: AppColors.primaryGlow,
+                cursorColor: AppColors.primary,
                 decoration: InputDecoration(
                   hintText: 'Search projects...',
                   hintStyle: TextStyle(
-                    color: AppColors.darkTextMuted,
+                    color: AppColors.textMutedColor(context),
                   ),
                   prefixIcon: Icon(
                     Icons.search_rounded,
                     size: 20,
-                    color: AppColors.darkTextMuted,
+                    color: AppColors.textMutedColor(context),
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
@@ -161,9 +163,9 @@ class ProjectListView extends GetView<ProjectController> {
           const SizedBox(width: 24),
           Stack(
             children: [
-              const Icon(
+              Icon(
                 Icons.notifications_none_rounded,
-                color: AppColors.darkTextSecondary,
+                color: AppColors.textSecondaryColor(context),
               ),
               Positioned(
                 right: 0,
@@ -185,7 +187,9 @@ class ProjectListView extends GetView<ProjectController> {
   }
 
   Widget _buildHeader() {
-    return const Column(
+    final context = Get.context!;
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -193,7 +197,7 @@ class ProjectListView extends GetView<ProjectController> {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w800,
-            color: AppColors.darkTextPrimary,
+            color: AppColors.textPrimaryColor(context),
             letterSpacing: -1,
           ),
         ),
@@ -202,7 +206,7 @@ class ProjectListView extends GetView<ProjectController> {
           'Overview of your active freelance engagements and billable hours.',
           style: TextStyle(
             fontSize: 15,
-            color: AppColors.darkTextSecondary,
+            color: AppColors.textSecondaryColor(context),
           ),
         ),
       ],

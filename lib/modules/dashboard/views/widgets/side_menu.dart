@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../data/services/theme_service.dart';
 import '../../../main/controllers/main_controller.dart';
 
 class SideMenu extends StatelessWidget {
@@ -9,28 +10,30 @@ class SideMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<MainController>();
+    final themeService = Get.find<ThemeService>();
+    final isDark = AppColors.isDark(context);
 
     return Container(
       width: 272,
       decoration: BoxDecoration(
-        color: AppColors.darkSidebar,
+        color: AppColors.sidebarBackground(context),
         border: Border(
           right: BorderSide(
-            color: AppColors.darkBorderSubtle.withValues(alpha: 0.6),
+            color: AppColors.borderSubtle(context).withValues(alpha: 0.9),
           ),
         ),
       ),
       child: Column(
         children: [
           const SizedBox(height: 28),
-          _buildLogo(),
+          _buildLogo(context),
           const SizedBox(height: 36),
           Expanded(
             child: Obx(
               () => ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 children: [
-                  _buildSectionLabel('MAIN'),
+                  _buildSectionLabel(context, 'MAIN'),
                   const SizedBox(height: 8),
                   _MenuItem(
                     icon: Icons.grid_view_rounded,
@@ -51,7 +54,7 @@ class SideMenu extends StatelessWidget {
                     onTap: () => controller.changeIndex(2),
                   ),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('ANALYTICS'),
+                  _buildSectionLabel(context, 'ANALYTICS'),
                   const SizedBox(height: 8),
                   _MenuItem(
                     icon: Icons.bar_chart_rounded,
@@ -71,14 +74,23 @@ class SideMenu extends StatelessWidget {
           ),
           _buildNewEntryButton(),
           const SizedBox(height: 16),
-          _buildUserProfile(),
+          Obx(
+            () => _buildThemeToggle(
+              context,
+              isDark: themeService.themeMode == ThemeMode.dark ||
+                  (themeService.themeMode == ThemeMode.system && isDark),
+              onTap: themeService.toggleLightDark,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildUserProfile(context),
           const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildSectionLabel(String label) {
+  Widget _buildSectionLabel(BuildContext context, String label) {
     return Padding(
       padding: const EdgeInsets.only(left: 14, bottom: 2),
       child: Text(
@@ -86,14 +98,14 @@ class SideMenu extends StatelessWidget {
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: AppColors.darkTextMuted.withValues(alpha: 0.7),
+          color: AppColors.textMutedColor(context).withValues(alpha: 0.7),
           letterSpacing: 1.4,
         ),
       ),
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
       child: Row(
@@ -125,12 +137,12 @@ class SideMenu extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'HourStack',
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.darkTextPrimary,
+                  color: AppColors.textPrimaryColor(context),
                   letterSpacing: -0.3,
                 ),
               ),
@@ -138,7 +150,7 @@ class SideMenu extends StatelessWidget {
                 'Freelance Tracker',
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.darkTextMuted,
+                  color: AppColors.textMutedColor(context),
                   letterSpacing: 0.2,
                 ),
               ),
@@ -197,15 +209,91 @@ class SideMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildUserProfile() {
+  Widget _buildThemeToggle(
+    BuildContext context, {
+    required bool isDark,
+    required Future<void> Function() onTap,
+  }) {
+    final label = isDark ? 'Switch to Light' : 'Switch to Dark';
+    final icon = isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            onTap();
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground(context),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.borderSubtle(context)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Theme',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimaryColor(context),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondaryColor(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.swap_horiz_rounded,
+                  size: 18,
+                  color: AppColors.textMutedColor(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserProfile(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.darkCard.withValues(alpha: 0.5),
+        color: AppColors.cardBackground(context).withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.darkBorderSubtle.withValues(alpha: 0.4),
+          color: AppColors.borderSubtle(context).withValues(alpha: 0.8),
         ),
       ),
       child: Row(
@@ -239,19 +327,19 @@ class SideMenu extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Alex Morgan',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkTextPrimary,
+                    color: AppColors.textPrimaryColor(context),
                   ),
                 ),
                 Text(
                   'Pro Plan',
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.darkTextMuted,
+                    color: AppColors.textMutedColor(context),
                   ),
                 ),
               ],
@@ -259,7 +347,7 @@ class SideMenu extends StatelessWidget {
           ),
           Icon(
             Icons.more_horiz_rounded,
-            color: AppColors.darkTextMuted,
+            color: AppColors.textMutedColor(context),
             size: 18,
           ),
         ],
@@ -291,6 +379,12 @@ class _MenuItemState extends State<_MenuItem> {
   @override
   Widget build(BuildContext context) {
     final isHighlighted = widget.isActive || _hovering;
+    final activeTextColor = AppColors.isDark(context)
+        ? AppColors.primaryGlow
+        : AppColors.primary;
+    final defaultTextColor = isHighlighted
+        ? AppColors.textPrimaryColor(context)
+        : AppColors.textSecondaryColor(context);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -302,14 +396,14 @@ class _MenuItemState extends State<_MenuItem> {
           curve: Curves.easeOut,
           decoration: BoxDecoration(
             color: widget.isActive
-                ? AppColors.darkSidebarActive
+                ? AppColors.sidebarActive(context)
                 : (_hovering
-                    ? AppColors.darkCard.withValues(alpha: 0.4)
+                    ? AppColors.cardBackground(context).withValues(alpha: 0.7)
                     : Colors.transparent),
             borderRadius: BorderRadius.circular(10),
             border: widget.isActive
                 ? Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.2),
+                    color: AppColors.primary.withValues(alpha: 0.16),
                   )
                 : null,
           ),
@@ -328,10 +422,8 @@ class _MenuItemState extends State<_MenuItem> {
                     Icon(
                       widget.icon,
                       color: widget.isActive
-                          ? AppColors.primaryGlow
-                          : (isHighlighted
-                              ? AppColors.darkTextPrimary
-                              : AppColors.darkTextSecondary),
+                          ? activeTextColor
+                          : defaultTextColor,
                       size: 19,
                     ),
                     const SizedBox(width: 12),
@@ -339,10 +431,8 @@ class _MenuItemState extends State<_MenuItem> {
                       widget.title,
                       style: TextStyle(
                         color: widget.isActive
-                            ? AppColors.primaryGlow
-                            : (isHighlighted
-                                ? AppColors.darkTextPrimary
-                                : AppColors.darkTextSecondary),
+                            ? activeTextColor
+                            : defaultTextColor,
                         fontSize: 13,
                         fontWeight: widget.isActive
                             ? FontWeight.w600
@@ -356,11 +446,11 @@ class _MenuItemState extends State<_MenuItem> {
                         width: 5,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryGlow,
+                          color: activeTextColor,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryGlow.withValues(alpha: 0.5),
+                              color: activeTextColor.withValues(alpha: 0.35),
                               blurRadius: 6,
                             ),
                           ],
